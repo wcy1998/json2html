@@ -5,7 +5,7 @@
   ],
   "compilerOptions": {
     "target": "es6",       /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "module": "es6",                                /* Specify what module code is generated. */
+    "module": "CommonJS",                                /* Specify what module code is generated. */
      "lib":["DOM","ES2015"],
      "declaration": true,
      "declarationDir": "./dist",
