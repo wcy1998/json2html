@@ -1,0 +1,119 @@
+{
+    "frame": "vue",
+    "base":"",
+    "htmlConfig": [
+        {
+            "path": "src/test/component1",
+            "html": {
+                "tag": "div",
+                "children": [
+                    {
+                        "tag": "section",
+                        "children": [
+                            {
+                                "tag": "span",
+                                "clazz": "iconfont icongaojing",
+                                "@click":"onClick"
+                            },
+                            {
+                                "tag": "span",
+                                "text": "以下嵌入文件被删除，确认继续导出吗"
+                            }
+                        ]
+                    },
+                    {
+                        "tag": "section",
+                        "clazz": "content",
+                        "children": [
+                            {
+                                "tag": "div",
+                                "vFor": "(item,idx) in infoList",
+                                "bindKey": "idx",
+                                "clazz": "content-item",
+                                "children": [
+                                    {
+                                        "tag": "img",
+                                        "clazz": "content-item-img",
+                                        "bindSrc": "require(`@/assets/image/home/file${1}.svg`)",
+                                        "alt": "暂无图片"
+                                    },
+                                    {
+                                        "tag": "span"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "children":[
+                {
+                    "path": "src/test/component1/component3",
+                    "html": {
+                        "tag": "div",
+                        "clazz": "container",
+                        "children": [
+                            {
+                                "tag": "section",
+                                "clazz": "tip",
+                                "children": [
+                                    {
+                                        "tag": "span",
+                                        "clazz": "iconfont icongaojing"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "path": "src/test/component2",
+            "html": {
+                "tag": "div",
+                "clazz": "container",
+                "children": [
+                    {
+                        "tag": "section",
+                        "clazz": "tip",
+                        "children": [
+                            {
+                                "tag": "span",
+                                "clazz": "iconfont icongaojing"
+                            },
+                            {
+                                "tag": "span",
+                                "text": "以下嵌入文件被删除，确认继续导出吗"
+                            }
+                        ]
+                    },
+                    {
+                        "tag": "section",
+                        "clazz": "content",
+                        "children": [
+                            {
+                                "tag": "div",
+                                "vFor": "(item,idx) in infoList",
+                                "bindKey": "idx",
+                                "children": [
+                                    {
+                                        "tag": "img",
+                                        "clazz": "content-item-img",
+                                        "bindSrc": "require(`@/assets/image/home/file${1}.svg`)",
+                                        "alt": "暂无图片"
+                                    },
+                                    {
+                                        "tag": "span"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "jsConfig": {},
+    "cssConfig": {}
+}

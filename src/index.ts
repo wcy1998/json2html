@@ -1,40 +1,21 @@
-import Complier from './complier';
 import { html_beautify, css_beautify } from 'js-beautify';
+import VueFactory from './factory/vueFactory';
+import { beautifyCompliedResult } from './types/vue/result';
+import { pagesConfig, htmlConfig, json2htmlConfig } from './types/vue/config';
+import { cloneDeep } from 'lodash';
+
 //eslint-disable-next-line
 const fs = require('fs')
 //eslint-disable-next-line
 const path = require('path')
-export interface htmlJsonConfig {
-    tag: string
-    clazz?: string
-    text?: string
-    vFor?: string
-    key?: string
-    bindKey?: string
-    children?: Array<htmlJsonConfig>
-    index?: string
-    src?: string
-    alt?: string
-    bindSrc?: string
-}
-export interface htmlConfig {
-    path: string //路径
-    html: htmlJsonConfig
-    children?: Array<htmlConfig>
-}
-export interface jsonConfig {
-    frame: string //框架类型
-    htmlConfig: Array<htmlConfig>
-    jsConfig: object
-    cssConfig: object
-}
-interface beautifyCompliedResult {
-    beautifyHtmlCompliedResult: string
-    beautifyCssCompliedResult: string
-}
+//eslint-disable-next-line
+const process = require('process')
+
+//获取执行当前代码的执行路径
+const basePath: string = process.cwd();
 
 //html的代码格式化配置
-const htmlBeautifyConfig: any = {
+const htmlBeautifyConfig: js_beautify.HTMLBeautifyOptions | undefined = {
     indent_size: 4, //换行缩进
     end_with_newline: true,
     wrap_attributes: 'force-expand-multiline',
@@ -42,16 +23,17 @@ const htmlBeautifyConfig: any = {
     preserve_newlines: false,
 };
 
-const cssBeautifyConfig: any = {
+//css的代码格式化配置
+const cssBeautifyConfig: js_beautify.CSSBeautifyOptions | undefined = {
     indent_size: 4, //换行缩进
     end_with_newline: true,
     indent_empty_lines: true,
     preserve_newlines: false,
 };
 
-function json2htmlCss (json: htmlJsonConfig): beautifyCompliedResult {
-    const complier = new Complier(json);
-    const { htmlCompliedResult, cssCompliedResult } = complier.compile();
+function json2htmlCss (json: htmlConfig): beautifyCompliedResult {
+    const { htmlCompliedResult, cssCompliedResult } = complier.compile(json);
+
     return {
         beautifyHtmlCompliedResult: html_beautify(
             '<template>' +
@@ -102,19 +84,9 @@ function json2htmlCss (json: htmlJsonConfig): beautifyCompliedResult {
     };
 }
 
-fs.readFile('./lowcode.json', 'utf-8', (error: Error, data: any) => {
-    if (error) throw error;
-    const jsonConfig: jsonConfig = JSON.parse(data);
-    const {
-        htmlConfig, //html配置
-    } = jsonConfig;
-
-    exportFiles(htmlConfig);
-});
-
-export function exportFiles (htmlConfig: Array<htmlConfig>): void {
-    htmlConfig.forEach(({ path: filePath, html: htmlJson, children }: htmlConfig) => {
-        exportToFile(filePath, htmlJson);
+export function exportFiles (pageConfig: Array<pagesConfig>): void {
+    pageConfig.forEach(({ path: filePath, htmlConfig, children }: pagesConfig) => {
+        exportToFile(filePath, htmlConfig);
         if (children && children.length > 0) {
             exportFiles(children);
         }
@@ -135,9 +107,9 @@ function mkdir (dirname: string, callback: () => void) {
 }
 
 //输出文件
-function exportToFile (filePath: string, htmlJson: htmlJsonConfig): void {
-    const { beautifyHtmlCompliedResult, beautifyCssCompliedResult } = json2htmlCss(htmlJson);
-    const filepath = path.join(__dirname, filePath);
+function exportToFile (filePath: string, htmlConfig: htmlConfig): void {
+    const { beautifyHtmlCompliedResult, beautifyCssCompliedResult } = json2htmlCss(htmlConfig);
+    const filepath = path.join(basePath, filePath);
 
     mkdir(filepath, () => {
         if (fs.existsSync(filepath)) {
@@ -154,3 +126,22 @@ function exportToFile (filePath: string, htmlJson: htmlJsonConfig): void {
         }
     });
 }
+let factory: any, complier: any;
+
+export function generateFile (json2htmlCfg: json2htmlConfig, htmlTemplateConfig: object, cssTemplateConfig: object) {
+    factory = json2htmlCfg.frame === 'vue' ? new VueFactory() : new VueFactory();
+
+    let parser: any = factory.createParser(json2htmlCfg, htmlTemplateConfig);
+
+    const parsedJson2htmlConfig = cloneDeep(parser.parsedJson2htmlConfig);
+
+    complier = factory.createComplier(cssTemplateConfig);
+
+    fs.writeFileSync(path.join(__dirname, 'test.json'), JSON.stringify(parser.parsedJson2htmlConfig), 'utf8', (err: Error) => {
+        if (err) throw err;
+    });
+    exportFiles(parsedJson2htmlConfig.pagesConfig);
+    parser = null;
+}
+
+//generateFile(json2htmlCfg,htmlTemplateConfig,cssTemplateConfig)
