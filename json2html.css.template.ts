@@ -1,17 +1,45 @@
 /*
  * @Author: your name
- * @Date: 2022-03-24 15:25:18
- * @LastEditTime: 2022-03-25 15:23:19
- * @LastEditors: Please set LastEditors
+ * @Date: 2022-03-25 13:16:29
+ * @LastEditTime: 2022-04-02 11:21:10
+ * @LastEditors: your name
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \json2htmltest\json2html.template.ts
+ * @FilePath: \json2htmltest\json2html.css.template.ts
  */
+
+//这里是 一些样式的mixin  因为使用js编写 所以可以进行无限的嵌套 可以去分文件结构去 但是要注意不能重名设置模板
 
 
 export const cssTemplateConfig = {
     "flex-column": {
         display: "flex",
         'flex-direction': 'column',
+        'justify-content': 'center'
+    },
+    "flex-row": {
+        display: "flex",
+        'flex-direction': 'row',
         'align-items': 'center'
+    },
+    "center":{
+        display: "flex",
+        'justify-content': 'center',
+        'align-items': 'center'
+    },
+    "no-scroll":{
+        "&":`::-webkit-scrollbar,::-webkit-scrollbar-track,::-webkit-scrollbar-thumb{
+            display:none
+        }`  
+    },
+    "one-line-ellipsis":{
+        overflow:'hidden',
+        'text-overflow':'ellipsis',
+        'white-space':'nowrap'
+    },
+    "left-img":{
+        width:'10px',
+        height:'10px',
+        cursor:'pointer'
     }
+
 } 

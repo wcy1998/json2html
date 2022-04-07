@@ -1,1 +1,0 @@
-{"frame":"vue","base":"","pagesConfig":[{"path":"src/test/component1","htmlConfig":{"clazz":"container","style":"width:100px","@click":"onclick","bindStyle":"{width:'12px'}","cssMixin":["flex-column"],"tag":"section"}}]}

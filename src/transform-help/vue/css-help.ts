@@ -1,70 +1,59 @@
 /*
  * @Author: your name
  * @Date: 2022-03-24 13:40:42
- * @LastEditTime: 2022-03-25 15:58:59
+ * @LastEditTime: 2022-04-07 15:22:41
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\css-help.ts
  */
-import { htmlConfig } from '../types/vue/config';
+import { HtmlConfig } from '../../types/vue';
 
 //将json配置转换成css组成的字符串
-export const json2css = (htmlConfig: htmlConfig | undefined, cssTemplateConfig: any, isRoot: boolean): string => {
+export const json2css = (htmlConfig: HtmlConfig | undefined, cssTemplateConfig: any, isRoot: boolean, usedCssMixin: Array<string>): string => {
     if (!htmlConfig) {
         return '';
     }
-    const { clazz, style = '', cssMixin = '' } = htmlConfig;
-    console.log(cssMixin);
+    const { clazz: clazz2, style = '', cssMixin = '', tag } = htmlConfig;
+
     // extractCommonStyles(style,cssTemplateConfig)
+    let clazz = clazz2;
+    const noClassStyle = !!(!clazz && (style || cssMixin));
 
-    console.log(cssTemplateConfig[cssMixin[0]]);
+    if (noClassStyle) {
+        clazz = `>${tag}`;
+    } else if (clazz) {
+        clazz = `.${clazz}`;
+    }
 
-    const styleString: string | undefined = style?.split(';').join(';');
+    let styleString: string = style?.split(';').join(';');
+    !/;$/.test(styleString.trim()) && (styleString += ';');
 
-    const childNodeJson: Array<htmlConfig> | undefined = htmlConfig?.children;
+    const childNodeJson: Array<HtmlConfig> | undefined = htmlConfig?.children;
 
-    return childNodeJson
-        ? clazz
-            ? `
+    return clazz
+        ? `
                 ${
-                    isRoot && cssMixin
-                        ? cssMixin.map(
-                              (mixin: string) => `@mixin ${mixin}{
+                    isRoot && usedCssMixin
+                        ? usedCssMixin
+                              .map(
+                                  (mixin: string) => `@mixin ${mixin}{
                  ${Object.entries(cssTemplateConfig[mixin])
-                     .map(([key, val]) => key + ':' + val)
+                     .map(([key, val]) => key + (key !== '&' ? ':' : '') + val)
                      .join(';')}
                 }`
-                          )
+                              )
+                              .join(' ')
                         : ''
                 }
-                .${clazz}{
-                     ${cssMixin ? cssMixin.map((mixin: string) => `@include ${mixin} ;`) : ''}
-                     ${styleString ? styleString + ';' : ''}
+                ${clazz}{
+                     ${cssMixin ? cssMixin.map((mixin: string) => `@include ${mixin} ;`).join('') : ''}
+                     ${styleString ? styleString : ''}
                      
-                     ${childNodeJson.map((child) => json2css(child, cssTemplateConfig, false)).join('')}
+                     ${childNodeJson ? childNodeJson.map((child) => json2css(child, cssTemplateConfig, false, usedCssMixin)).join('') : ''}
 
                  }
         `
-            : `${childNodeJson.map((child) => json2css(child, cssTemplateConfig, false)).join('')}`
-        : clazz
-        ? `
-        ${
-            isRoot && cssMixin
-                ? cssMixin.map(
-                      (mixin: string) => `@mixin ${mixin}{
-            ${Object.entries(cssTemplateConfig[mixin])
-                .map(([key, val]) => key + ':' + val)
-                .join(';')}
-           }`
-                  )
-                : ''
-        }
-        .${clazz}{
-            ${cssMixin ? cssMixin.map((mixin: string) => `@include ${mixin} ;`) : ''}
-            ${styleString ? styleString + ';' : ''}
-        }      
-        `
-        : '';
+        : `${childNodeJson ? childNodeJson.map((child) => json2css(child, cssTemplateConfig, false, usedCssMixin)).join('') : ''}`;
 };
 
 /* function extractCommonStyles (style:string,cssTemplateConfig:object){
