@@ -1,4 +1,4 @@
-//用于将智能生成的代码转换为fastCodeConfig
+//将智能代码转换成配置的解析器
 import { FastCodeConfig } from '../../types/vue';
 import File2FastCodeConfigParser from './file2FastCodeConfigParser';
 import { isPlainTextElement, isNonPhrasingTag, canBeLeftOpenTag, isUnaryTagFnc } from '../../shared/judgeFunc';

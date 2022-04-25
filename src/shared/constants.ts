@@ -16,6 +16,7 @@ export const vueBuiltInAttribute = 'clazz,:clazz,vFor,vIf,vElse,vElseIf';
 //一些不会被当做属性保留在dom中的
 export const notRetainedAttribute = 'tag,children,text,style,cssMixin';
 
+//左开标签
 export const canBeLeftOpenTag = 'colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr,source';
 
 //vue的一些内置写法的属性
@@ -35,6 +36,8 @@ export const svgTag: string =
     'svg,animate,circle,clippath,cursor,defs,desc,ellipse,filter,font-face,' +
     'foreignObject,g,glyph,image,line,marker,mask,missing-glyph,path,pattern,' +
     'polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view';
+
+//不会解析的标签
 export const isNonPhrasingTags =
     'address,article,aside,base,blockquote,body,caption,col,colgroup,dd,' +
     'details,dialog,div,dl,dt,fieldset,figcaption,figure,footer,form,' +

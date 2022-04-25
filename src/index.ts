@@ -2,15 +2,14 @@ import { html_beautify, css_beautify, js_beautify } from 'js-beautify';
 import VueFactory from './factory/vueFactory';
 import { beautifyCompliedResult } from './types/vue';
 import { PagesConfig, HtmlConfig, FastCodeConfig } from './types/vue';
-import { fastCodeConfig as originFastCodeConFig } from '../test/json2html2.config';
-import { htmlTemplateConfig } from '../json2html.html.template';
-import { cssTemplateConfig } from '../json2html.css.template';
 import { formSnippetsByTemplates } from './snippets';
 import { cloneDeep } from 'lodash';
 import { generateDefaultConfig } from './defaultConfig';
 import VueParser from './parser/parser/config2FileVueParser';
 import Factory from './factory/factory';
 import Complier from './complier/complier';
+import { axiosConfig } from './types/vue';
+import { emitAxiosFiles } from './transform-help/vue/http-help';
 
 //eslint-disable-next-line
 const fs = require('fs')
@@ -21,12 +20,6 @@ const process = require('process')
 
 //获取执行当前代码的执行路径
 const basePath: string = process.cwd();
-
-//生成代码片段的配置
-formSnippetsByTemplates(cssTemplateConfig, htmlTemplateConfig, originFastCodeConFig.snippetsPath);
-
-//生成相关的默认配置
-const fastCodeConfig = generateDefaultConfig(originFastCodeConFig);
 
 //html的代码格式化配置
 const htmlBeautifyConfig: js_beautify.HTMLBeautifyOptions = {
@@ -150,20 +143,30 @@ function exportToFile (filePath: string, htmlConfig: HtmlConfig, usedCssMixin: A
 let factory: Factory, complier: Complier, configParser: any;
 
 //生成文件
-export function generateFile (fastCodeConfig: FastCodeConfig, htmlTemplateConfig: object, cssTemplateConfig: object) {
+export function generateFile (originFastCodeConFig: FastCodeConfig, htmlTemplateConfig: object, cssTemplateConfig: object): void {
+    //生成代码片段的配置
+    formSnippetsByTemplates(cssTemplateConfig, htmlTemplateConfig, originFastCodeConFig.snippetsPath);
+    //生成相关的默认配置
+    const fastCodeConfig = generateDefaultConfig(originFastCodeConFig);
+
     factory = fastCodeConfig.frame === 'vue' ? new VueFactory() : new VueFactory();
+
     let parser: VueParser | null = factory.createParser(fastCodeConfig, htmlTemplateConfig);
+
     let parsedJson2htmlConfig: FastCodeConfig | undefined;
+
     if (parser instanceof VueParser) {
-        parsedJson2htmlConfig = cloneDeep(parser.parsedJson2htmlConfig);
+        parsedJson2htmlConfig = cloneDeep(parser.parsedFastCodeConfig);
     }
+
     complier = factory.createComplier(cssTemplateConfig);
     exportFiles(parsedJson2htmlConfig?.pagesConfig);
     parser = null;
 }
 
+//解析智能生成的代码变成fastCodeConfig
 export function parseFile2FastCodeConfig (pageName: string, pagePath: string) {
-    factory = fastCodeConfig.frame === 'vue' ? new VueFactory() : new VueFactory();
+    factory = new VueFactory();
     configParser = factory.createConfigParser(
         `<div class="flex-col page">
     <div class="justify-between group">
@@ -364,8 +367,15 @@ export function parseFile2FastCodeConfig (pageName: string, pagePath: string) {
     });
 }
 
+//生成接口文件
+export function generateAxiosFiles (axiosConfigs: Array<axiosConfig>) {
+    emitAxiosFiles(axiosConfigs);
+}
+
+//generateAxiosFiles(httpConfig)
+
 //解析智能生成的代码变成fastCodeConfig
 //parseFile2FastCodeConfig('test1','test1')
 
 //通过fastCodeConfig 生成对应的vue文件
-generateFile(fastCodeConfig, htmlTemplateConfig, cssTemplateConfig);
+//generateFile(fastCodeConfig, htmlTemplateConfig, cssTemplateConfig);

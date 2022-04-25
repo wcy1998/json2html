@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-24 14:20:53
- * @LastEditTime: 2022-04-02 11:25:56
+ * @LastEditTime: 2022-04-25 11:20:33
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\types\vue\config.ts
@@ -44,4 +44,11 @@ export interface FastCodeConfig {
     mixinCss?: boolean //是否开启抽取css的相关功能
 
     pagesConfig: Array<PagesConfig> //页面的配置
+}
+
+//axios配置 用于生成axios相关文件
+export interface axiosConfig {
+    url: string //接口路径
+    type: 'post' | 'get' //接口方式
+    mark?: string //注释
 }

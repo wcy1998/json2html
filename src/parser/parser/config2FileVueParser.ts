@@ -1,26 +1,22 @@
-/*
- * @Author: your name
- * @Date: 2022-03-24 13:45:51
- * @LastEditTime: 2022-04-07 15:24:28
- * @LastEditors: Please set LastEditors
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \json2htmltest\src\parser\vueParser.ts
- */
-
+//将配置转换成文件过程的解析器
 import Config2FileParser from './config2FileParser';
 import { FastCodeConfig, HtmlConfig, PagesConfig } from '../../types/vue';
 import cloneDeep from 'lodash/cloneDeep';
 //eslint-disable-next-line
 const path = require('path')
 export default class Config2FileVueParser implements Config2FileParser {
-    json2htmlConfig: FastCodeConfig;
-    templateConfig: any;
-    base: string | undefined;
-    parsedJson2htmlConfig: FastCodeConfig;
-    constructor (json2htmlConfig: FastCodeConfig, templateConfig: object) {
-        this.json2htmlConfig = json2htmlConfig;
+    fastCodeConfig: FastCodeConfig; //用户传入的配置
+
+    templateConfig: any; //用户写的模板配置
+
+    base: string | undefined; //用户配置的根路径
+
+    parsedFastCodeConfig: FastCodeConfig; //经过解析后的配置
+
+    constructor (fastCodeConfig: FastCodeConfig, templateConfig: object) {
+        this.fastCodeConfig = fastCodeConfig;
         this.templateConfig = templateConfig;
-        this.base = json2htmlConfig.base;
+        this.base = fastCodeConfig.base;
         let fatherPath = '';
 
         const traverse = (pagesConfig: Array<PagesConfig>, isRoot: boolean): void => {
@@ -35,8 +31,8 @@ export default class Config2FileVueParser implements Config2FileParser {
                 page.usedCssMixin = Array.from(usedCssMixin);
             });
         };
-        traverse(json2htmlConfig.pagesConfig, true);
-        this.parsedJson2htmlConfig = json2htmlConfig;
+        traverse(fastCodeConfig.pagesConfig, true);
+        this.parsedFastCodeConfig = fastCodeConfig;
     }
     parseHtmlConfig (htmlConfigs: Array<HtmlConfig>, usedCssMixin: Set<any>): void {
         const traverse = (htmlConfigs: Array<HtmlConfig>, usedCssMixin: Set<any>): void => {
