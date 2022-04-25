@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-29 17:15:59
- * @LastEditTime: 2022-04-07 14:16:29
+ * @LastEditTime: 2022-04-25 16:50:29
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\snippets\index.ts
@@ -12,9 +12,9 @@ import { js_beautify } from 'js-beautify';
 import { cssSnippets } from './cssSnippets';
 import { baseSnippets } from './baseSnippets';
 //eslint-disable-next-line
-const fs = require('fs')
+import fs from 'fs'
 //eslint-disable-next-line
-const path = require('path')
+import path from 'path'
 
 //通过配置模板文件生成响应的代码片段提示
 export function formSnippetsByTemplates (cssTemplateConfig: object, htmlTemplateConfig: object, snippetsPath: string) {
@@ -71,10 +71,6 @@ export function formSnippetsByTemplates (cssTemplateConfig: object, htmlTemplate
     Object.assign(snippetsConfigs, baseSnippets);
 
     //输出到指定路径形成代码片段配置
-    fs.writeFileSync(path.resolve(tsSnippetsPath), js_beautify(JSON.stringify(snippetsConfigs)), 'utf8', (err: Error) => {
-        if (err) throw err;
-    });
-    fs.writeFileSync(path.resolve(jsSnippetsPath), js_beautify(JSON.stringify(snippetsConfigs)), 'utf8', (err: Error) => {
-        if (err) throw err;
-    });
+    fs.writeFileSync(path.resolve(tsSnippetsPath), js_beautify(JSON.stringify(snippetsConfigs)), 'utf8');
+    fs.writeFileSync(path.resolve(jsSnippetsPath), js_beautify(JSON.stringify(snippetsConfigs)), 'utf8');
 }

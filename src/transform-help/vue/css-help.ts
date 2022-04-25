@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-04-19 19:48:08
+ * @LastEditTime: 2022-04-25 17:28:17
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\css-help.ts
@@ -39,7 +39,7 @@ export const json2css = (
     //将style中的属性 处理成css格式的字符串
     let styleString: string = style?.split(';').join(';');
 
-    !/;$/.test(styleString.trim()) && (styleString += ';');
+    styleString && !/;$/.test(styleString.trim()) && (styleString += ';');
 
     const childNodeJson: Array<HtmlConfig> | undefined = htmlConfig?.children;
 

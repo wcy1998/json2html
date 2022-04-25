@@ -12,11 +12,11 @@ import { axiosConfig } from './types/vue';
 import { emitAxiosFiles } from './transform-help/vue/http-help';
 
 //eslint-disable-next-line
-const fs = require('fs')
+import fs from 'fs'
 //eslint-disable-next-line
-const path = require('path')
+import path from 'path'
 //eslint-disable-next-line
-const process = require('process')
+import process from 'process'
 
 //获取执行当前代码的执行路径
 const basePath: string = process.cwd();
@@ -94,17 +94,11 @@ async function exportToFile (filePath: string, htmlConfig: HtmlConfig, jsConfig:
     mkdir(filepath, () => {
         if (fs.existsSync(filepath)) {
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
-            fs.writeFileSync(path.join(filepath, 'index.vue'), beautifyHtmlCompliedResult, 'utf8', (err: Error) => {
-                if (err) throw err;
-            });
+            fs.writeFileSync(path.join(filepath, 'index.vue'), beautifyHtmlCompliedResult, 'utf8');
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
-            fs.writeFileSync(path.join(filepath, 'index.scss'), beautifyCssCompliedResult, 'utf8', (err: Error) => {
-                if (err) throw err;
-            });
+            fs.writeFileSync(path.join(filepath, 'index.scss'), beautifyCssCompliedResult, 'utf8');
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
-            fs.writeFileSync(path.join(filepath, 'index.js'), beautifyJsCompliedResult, 'utf8', (err: Error) => {
-                if (err) throw err;
-            });
+            fs.writeFileSync(path.join(filepath, 'index.js'), beautifyJsCompliedResult, 'utf8');
         } else {
             fs.mkdirSync(path.dirname(filepath));
         }
@@ -333,9 +327,7 @@ export function parseFile2FastCodeConfig (pageName: string, pagePath: string) {
   `,
         pagePath
     );
-    fs.writeFileSync(path.join(basePath, `${pageName}fastCodeConfig.ts`), js_beautify('export const fastCodeConfig =' + JSON.stringify(configParser.parsedConfig)), 'utf8', (err: Error) => {
-        if (err) throw err;
-    });
+    fs.writeFileSync(path.join(basePath, `${pageName}fastCodeConfig.ts`), js_beautify('export const fastCodeConfig =' + JSON.stringify(configParser.parsedConfig)), 'utf8');
 }
 
 //生成接口文件

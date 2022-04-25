@@ -11,14 +11,14 @@ import { axiosConfig } from '../../types/vue';
 import { fileEmitter } from '../file-help';
 import { axiosReg } from '../../regex';
 //eslint-disable-next-line
-const path = require('path')
+import path from 'path'
 //eslint-disable-next-line
-const fs = require('fs')
+import fs from 'fs'
 //eslint-disable-next-line
-const process = require('process')
+import process from 'process'
 //输出文件
 export function emitAxiosFiles (axiosConfigs: Array<axiosConfig>) {
-    fs.readFile(path.resolve(process.cwd(), 'src/axios/interface.js'), 'utf-8', (err: Error, data: any) => {
+    fs.readFile(path.resolve(process.cwd(), 'src/axios/interface.js'), 'utf-8', (err: any, data: any) => {
         if (err) throw err;
         const interfaceFileContent = data;
         let interfaces = '';

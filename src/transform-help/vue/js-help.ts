@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-25 13:20:55
- * @LastEditTime: 2022-04-25 15:34:11
+ * @LastEditTime: 2022-04-25 18:43:04
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\js-help.ts
@@ -9,17 +9,17 @@
 
 import { JsConfig } from '../../types/vue';
 import { toRawType } from '../../shared/utils';
+import path from 'path';
 export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<string> {
-    const { name, props = {}, data = {}, ndata = {} } = jsConfig;
+    const { name, props = {}, data = {}, ndata = {}, getList = [] } = jsConfig;
     let res;
     try {
-        res = await import(`${filepath}/index.js`);
-        console.log(res);
+        res = await import(path.join(path.resolve(filepath, 'index.js')));
     } catch (e) {
-        console.log(e, '读取文件失败');
+        console.log('读取文件失败');
     }
     const VueOptions = res?.default;
-    const { computed = null, watch = null, created = null, mounted = null, methods = null } = VueOptions || {};
+    const { computed = null, watch = null, created = null, mounted = null } = VueOptions || {};
 
     return `export default {
        name:"${name}",
@@ -30,7 +30,7 @@ export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<st
        beforeCreate(){${processNoReactiveData(ndata)}},
        ${created || 'created(){}'},
        ${mounted || 'mounted(){}'},
-       methods:${methods ? JSON.stringify(methods) : '{}'}
+       methods:{${processGetListFunc(getList)}}
    }`;
 }
 
@@ -105,4 +105,31 @@ function processWatch (watch: object): string {
         return value;
     });
     return ndataString.join(',');
+}
+
+function processGetListFunc (getList: Array<any>) {
+    let switchCase = 'switch (type) {';
+
+    getList.forEach(({ axios, list }) => {
+        switchCase += ` case '${list}':
+        action = $http.${axios};
+        break;`;
+    });
+    switchCase += `
+    default:
+        break;
+    }`;
+    return `
+    async getDataList (type) {
+        let action;
+        ${switchCase}
+        try {
+            let res = await action();
+            if (res.success) {
+                this[type] = res.obj;
+            }
+        } catch (e) {
+            console.log(e); //eslint-disable-line
+        }
+    }`;
 }
