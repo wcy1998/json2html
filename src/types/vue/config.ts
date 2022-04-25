@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-24 14:20:53
- * @LastEditTime: 2022-04-25 11:20:33
+ * @LastEditTime: 2022-04-25 14:13:37
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\types\vue\config.ts
@@ -31,8 +31,12 @@ export interface HtmlConfig {
 export interface CssConfig {}
 
 //js相关配置
-//eslint-disable-next-line
-export interface JsConfig {}
+export interface JsConfig {
+    name?: string //组件名
+    props?: object
+    data?: object
+    ndata?: object //没有响应性的变量
+}
 
 export interface FastCodeConfig {
     frame?: string //要转换的语言类型框架类型

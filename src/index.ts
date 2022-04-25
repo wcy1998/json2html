@@ -1,6 +1,6 @@
 import { html_beautify, css_beautify, js_beautify } from 'js-beautify';
 import VueFactory from './factory/vueFactory';
-import { beautifyCompliedResult } from './types/vue';
+import { beautifyCompliedResult, JsConfig } from './types/vue';
 import { PagesConfig, HtmlConfig, FastCodeConfig } from './types/vue';
 import { formSnippetsByTemplates } from './snippets';
 import { cloneDeep } from 'lodash';
@@ -39,8 +39,8 @@ const cssBeautifyConfig: js_beautify.CSSBeautifyOptions = {
 };
 
 //将转换成可以输出的文件
-function json2htmlCss (json: HtmlConfig, usedCssMixin: Array<string>): beautifyCompliedResult {
-    const { htmlCompliedResult, cssCompliedResult } = complier.compile(json, usedCssMixin);
+async function json2htmlCss (htmlConfig: HtmlConfig, jsConfig: JsConfig, usedCssMixin: Array<string>, filepath: string): Promise<beautifyCompliedResult> {
+    const { htmlCompliedResult, cssCompliedResult, jsCompliedResult } = await complier.compile(htmlConfig, jsConfig, usedCssMixin, filepath);
 
     return {
         beautifyHtmlCompliedResult: html_beautify(
@@ -48,47 +48,15 @@ function json2htmlCss (json: HtmlConfig, usedCssMixin: Array<string>): beautifyC
                 htmlCompliedResult +
                 '</template>' +
                 `<script>
-                  export default {
-                      name:"${'component'}",
-                      mixins:[],
-                      component:{
-
-                      },
-                      props:{
-
-                      },
-                      data(){
-                          return {
-
-                          }
-                      },
-                      computed:{
-
-                      },
-                      watch:{
-
-                      },
-                      beforeCreate(){
-
-                      },
-                      created(){
-
-                      },
-                      mounted(){
-
-                      },
-                      methods:{
-
-                      }
-                  }
+                 export {default} from './index.js' 
                  </script>
- 
                  <style lang="scss" scoped>
                   @import './index.scss'; 
                  </style>`,
             htmlBeautifyConfig
         ),
         beautifyCssCompliedResult: css_beautify(cssCompliedResult, cssBeautifyConfig),
+        beautifyJsCompliedResult: js_beautify(jsCompliedResult),
     };
 }
 
@@ -97,8 +65,8 @@ export function exportFiles (pageConfig: Array<PagesConfig> | undefined): void {
     if (!pageConfig) {
         throw new Error('没有配置文件');
     }
-    pageConfig.forEach(({ path: filePath, htmlConfig, children, usedCssMixin = [] }: PagesConfig) => {
-        exportToFile(filePath, htmlConfig, usedCssMixin);
+    pageConfig.forEach(({ path: filePath, htmlConfig, jsConfig = {}, children, usedCssMixin = [] }: PagesConfig) => {
+        exportToFile(filePath, htmlConfig, jsConfig, usedCssMixin);
         if (children && children.length > 0) {
             exportFiles(children);
         }
@@ -119,10 +87,9 @@ function mkdir (dirname: string, callback: () => void) {
 }
 
 //输出单个文件
-function exportToFile (filePath: string, htmlConfig: HtmlConfig, usedCssMixin: Array<string>): void {
-    const { beautifyHtmlCompliedResult, beautifyCssCompliedResult } = json2htmlCss(htmlConfig, usedCssMixin);
-
+async function exportToFile (filePath: string, htmlConfig: HtmlConfig, jsConfig: JsConfig, usedCssMixin: Array<string>): Promise<void> {
     const filepath = path.join(basePath, filePath);
+    const { beautifyHtmlCompliedResult, beautifyCssCompliedResult, beautifyJsCompliedResult } = await json2htmlCss(htmlConfig, jsConfig, usedCssMixin, filepath);
 
     mkdir(filepath, () => {
         if (fs.existsSync(filepath)) {
@@ -132,6 +99,10 @@ function exportToFile (filePath: string, htmlConfig: HtmlConfig, usedCssMixin: A
             });
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
             fs.writeFileSync(path.join(filepath, 'index.scss'), beautifyCssCompliedResult, 'utf8', (err: Error) => {
+                if (err) throw err;
+            });
+            //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
+            fs.writeFileSync(path.join(filepath, 'index.js'), beautifyJsCompliedResult, 'utf8', (err: Error) => {
                 if (err) throw err;
             });
         } else {
