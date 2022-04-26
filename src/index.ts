@@ -98,7 +98,7 @@ async function exportToFile (filePath: string, htmlConfig: HtmlConfig, jsConfig:
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
             fs.writeFileSync(path.join(filepath, 'index.scss'), beautifyCssCompliedResult, 'utf8');
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
-            fs.writeFileSync(path.join(filepath, 'index.js'), beautifyJsCompliedResult, 'utf8');
+            fs.writeFileSync(path.join(filepath, 'index.ts'), beautifyJsCompliedResult, 'utf8');
         } else {
             fs.mkdirSync(path.dirname(filepath));
         }

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-25 13:20:55
- * @LastEditTime: 2022-04-26 09:42:45
+ * @LastEditTime: 2022-04-26 09:58:30
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\js-help.ts
@@ -11,7 +11,7 @@ import { JsConfig } from '../../types/vue';
 import { toRawType } from '../../shared/utils';
 import path from 'path';
 export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<string> {
-    const { name, props = {}, data = {}, ndata = {}, getList = null, methods = {} } = jsConfig;
+    const { name, props = {}, data = {}, ndata = {}, getList = [], methods = {} } = jsConfig;
     let res;
     try {
         res = await import(path.join('file://', path.resolve(filepath, 'index.js')));
@@ -19,17 +19,17 @@ export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<st
         console.log('读取文件失败');
     }
     const VueOptions = res?.default;
-    const { computed = null, watch = null, created = null, mounted = null, methods: preMethods } = VueOptions || {};
+    const { computed = {}, watch = {}, created = null, mounted = null, methods: preMethods = {} } = VueOptions || {};
     return `export default {
        name:"${name}",
        props:{${processProps(props)}},
        data(){return${JSON.stringify(data)}},
-       computed:${computed ? JSON.stringify(computed) : '{}'},
-       watch:{${watch ? processWatch(watch) : ''}},
+       computed:${Object.keys(computed).length ? JSON.stringify(computed) : '{}'},
+       watch:{${Object.keys(watch).length ? processWatch(watch) : ''}},
        beforeCreate(){${processNoReactiveData(ndata)}},
        ${created || 'created(){}'},
        ${mounted || 'mounted(){}'},
-       methods:{${(getList ? processGetListFunc(getList) + ',' : '') + processMethods(methods, preMethods)}}
+       methods:{${(getList?.length ? processGetListFunc(getList, preMethods) + ',' : '') + processMethods(methods, preMethods)}}
    }`;
 }
 
@@ -106,7 +106,10 @@ function processWatch (watch: object): string {
     return ndataString.join(',');
 }
 
-function processGetListFunc (getList: Array<any>) {
+function processGetListFunc (getList: Array<any>, preMethods: any) {
+    if (preMethods.getDataList) {
+        delete preMethods.getDataList;
+    }
     let switchCase = 'switch (type) {';
     getList.forEach(({ axios, params, list }) => {
         switchCase += ` case '${list}':
@@ -150,10 +153,10 @@ function processMethods (methods: object, preMethods: any): string {
         if (preMethods[key]) {
             delete preMethods[key];
         }
-        return val;
+        return `${val},`;
     });
     const preMethodsString = Object.entries(preMethods).map(([, val]) => {
-        return val;
+        return `${val},`;
     });
-    return methodsString.join(',') + ',' + preMethodsString.join(',');
+    return methodsString.join('') + preMethodsString.join('');
 }

@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-04-25 16:52:14
- * @LastEditors: your name
+ * @LastEditTime: 2022-04-26 10:23:53
+ * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\parser\parser\config2FileVueParser.ts
  */
@@ -28,9 +28,11 @@ export default class Config2FileVueParser implements Config2FileParser {
         let fatherPath = '';
 
         const traverse = (pagesConfig: Array<PagesConfig>, isRoot: boolean): void => {
-            pagesConfig.forEach((page) => {
+            pagesConfig.forEach((page, index) => {
                 page.path = isRoot ? path.join(this.base || '', page.path) : path.join(fatherPath, page.path);
-                fatherPath = page.path;
+                if (index === pagesConfig.length - 1) {
+                    fatherPath = page.path;
+                }
                 const usedCssMixin: Set<any> = new Set();
                 this.parseHtmlConfig([page.htmlConfig], usedCssMixin);
                 if (page.children) {

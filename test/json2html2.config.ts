@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-04-25 19:41:51
+ * @LastEditTime: 2022-04-26 10:19:12
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\test\json2html2.config.ts
@@ -28,9 +28,9 @@ export const fastCodeConfig = {
                     },
                     controlledFiledList: [],
                 },
-                methods:{
-                    aaa(){
-                         console.log(675765765)
+                methods: {
+                    aaa() {
+                        console.log(675765765)
                     }
                 },
                 getList: [
@@ -61,17 +61,17 @@ export const fastCodeConfig = {
             jsConfig: {
                 name: 'worksheetManagement',
                 data: {
-                    searchParam:{
-                        pageNo:'1',
-                        pageSize:'10',
-                        worksheetName:''
+                    searchParam: {
+                        pageNo: '1',
+                        pageSize: '10',
+                        worksheetName: ''
                     },
                     workSheetList: [],
                 },
                 getList: [
                     {
                         axios: 'listWorksheet',
-                        params:'...this.searchParam',
+                        params: '...this.searchParam',
                         list: 'workSheetList'
                     },
                 ]
@@ -85,26 +85,71 @@ export const fastCodeConfig = {
             jsConfig: {
                 name: 'reportManagement',
                 data: {
-                    searchParam:{
-                        reportName:'',
-                        reportClassifyId:'',
-                        reportStatus:'',
-                        authorityStatus:'',
-                        startTime:'',
-                        endTime:'',
-                        pageNo:'',
-                        pageSize:"",
+                    searchParam: {
+                        reportName: '',
+                        reportClassifyId: '',
+                        reportStatus: '',
+                        authorityStatus: '',
+                        startTime: '',
+                        endTime: '',
+                        pageNo: '',
+                        pageSize: "",
                     },
                     reportList: [],
                 },
                 getList: [
                     {
                         axios: 'list',
-                        params:"...this.searchParam",
+                        params: "...this.searchParam",
                         list: 'reportList'
                     },
                 ]
             }
-        }
+        },
+        {    //个人任务页面
+            path: 'reportCenter/personalTasks/taskRequest',
+            htmlConfig: {
+                template: "@columnContainer"
+            },
+            jsConfig: {
+                name: 'taskRequest',
+            },
+            children: [
+                {
+                    path: 'reportList',
+                    htmlConfig: {
+                        template: "@columnContainer"
+                    },
+                    jsConfig: {
+                        name: 'reportManagement',
+                        data: {
+                            searchParam: {
+                                reportName: '',
+                                reportClassifyId: '',
+                            },
+                            reportList: [],
+                        },
+                        getList: [
+                            {
+                                axios: 'list',
+                                params: "...this.searchParam",
+                                list: 'reportList'
+                            },
+                        ]
+                    }
+                },
+                {
+                    path: 'apply',
+                    htmlConfig: {
+                        template: "@columnContainer"
+                    },
+                    jsConfig: {
+                        name: 'apply',
+                        data: {
+                        },
+                    }
+                }
+            ]
+        },
     ]
 }
