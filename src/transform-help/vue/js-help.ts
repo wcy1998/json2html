@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-25 13:20:55
- * @LastEditTime: 2022-04-25 18:43:04
+ * @LastEditTime: 2022-04-26 09:42:45
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\js-help.ts
@@ -11,16 +11,15 @@ import { JsConfig } from '../../types/vue';
 import { toRawType } from '../../shared/utils';
 import path from 'path';
 export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<string> {
-    const { name, props = {}, data = {}, ndata = {}, getList = [] } = jsConfig;
+    const { name, props = {}, data = {}, ndata = {}, getList = null, methods = {} } = jsConfig;
     let res;
     try {
-        res = await import(path.join(path.resolve(filepath, 'index.js')));
+        res = await import(path.join('file://', path.resolve(filepath, 'index.js')));
     } catch (e) {
         console.log('读取文件失败');
     }
     const VueOptions = res?.default;
-    const { computed = null, watch = null, created = null, mounted = null } = VueOptions || {};
-
+    const { computed = null, watch = null, created = null, mounted = null, methods: preMethods } = VueOptions || {};
     return `export default {
        name:"${name}",
        props:{${processProps(props)}},
@@ -30,7 +29,7 @@ export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<st
        beforeCreate(){${processNoReactiveData(ndata)}},
        ${created || 'created(){}'},
        ${mounted || 'mounted(){}'},
-       methods:{${processGetListFunc(getList)}}
+       methods:{${(getList ? processGetListFunc(getList) + ',' : '') + processMethods(methods, preMethods)}}
    }`;
 }
 
@@ -109,10 +108,22 @@ function processWatch (watch: object): string {
 
 function processGetListFunc (getList: Array<any>) {
     let switchCase = 'switch (type) {';
-
-    getList.forEach(({ axios, list }) => {
+    getList.forEach(({ axios, params, list }) => {
         switchCase += ` case '${list}':
         action = $http.${axios};
+        ${
+            params
+                ? 'params = {' +
+                  (typeof params === 'string'
+                      ? params
+                      : Object.entries(params)
+                            .map(([key, val]) => {
+                                return `${key}:${val}`;
+                            })
+                            .join(',')) +
+                  '}'
+                : ''
+        }
         break;`;
     });
     switchCase += `
@@ -121,10 +132,10 @@ function processGetListFunc (getList: Array<any>) {
     }`;
     return `
     async getDataList (type) {
-        let action;
+        let action,params;
         ${switchCase}
         try {
-            let res = await action();
+            let res = await action(params);
             if (res.success) {
                 this[type] = res.obj;
             }
@@ -132,4 +143,17 @@ function processGetListFunc (getList: Array<any>) {
             console.log(e); //eslint-disable-line
         }
     }`;
+}
+
+function processMethods (methods: object, preMethods: any): string {
+    const methodsString = Object.entries(methods).map(([key, val]) => {
+        if (preMethods[key]) {
+            delete preMethods[key];
+        }
+        return val;
+    });
+    const preMethodsString = Object.entries(preMethods).map(([, val]) => {
+        return val;
+    });
+    return methodsString.join(',') + ',' + preMethodsString.join(',');
 }

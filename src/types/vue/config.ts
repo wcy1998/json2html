@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-24 14:20:53
- * @LastEditTime: 2022-04-25 18:16:57
+ * @LastEditTime: 2022-04-25 19:42:44
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\types\vue\config.ts
@@ -37,6 +37,7 @@ export interface JsConfig {
     data?: object
     ndata?: object //没有响应性的变量
     getList?: Array<object>
+    methods?: object
 }
 
 export interface FastCodeConfig {

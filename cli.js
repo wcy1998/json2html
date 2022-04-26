@@ -10,7 +10,6 @@ const { Command } = require('commander');
 const os = require('os')
 const program = new Command();
 
-console.log(2222, os.homedir())
 
 program.version('1.0.17'); //设置当前项目的版本 通过-V 显示
 

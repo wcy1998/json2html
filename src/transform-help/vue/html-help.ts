@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-24 13:40:32
- * @LastEditTime: 2022-04-25 17:59:04
+ * @LastEditTime: 2022-04-26 09:27:41
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\html-help.ts
@@ -39,7 +39,6 @@ export const json2htmlNode = (
         .filter((item) => item);
 
     const childNodeJson: Array<HtmlConfig> | undefined = htmlConfig?.children;
-    console.log(otherAttributes);
     return `
            ${startTag} 
                 ${otherAttributes
