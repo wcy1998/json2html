@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-04-25 10:22:03
- * @LastEditors: your name
+ * @LastEditTime: 2022-04-26 15:44:58
+ * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\regex\index.ts
  */
@@ -39,3 +39,6 @@ export const cssReg = /\.([^\{]{1,}) \{([^\}]*)/g //匹配css用的正则
 
 //替换axios文件路径
 export const axiosReg = /^\/easybi\//;
+
+//匹配import的相关内容
+export const importReg = /(.*)export default/;

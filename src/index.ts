@@ -10,6 +10,7 @@ import Factory from './factory/factory';
 import Complier from './complier/complier';
 import { axiosConfig } from './types/vue';
 import { emitAxiosFiles } from './transform-help/vue/http-help';
+import { importReg } from './regex';
 
 //eslint-disable-next-line
 import fs from 'fs'
@@ -94,11 +95,21 @@ async function exportToFile (filePath: string, htmlConfig: HtmlConfig, jsConfig:
     mkdir(filepath, () => {
         if (fs.existsSync(filepath)) {
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
+
             fs.writeFileSync(path.join(filepath, 'index.vue'), beautifyHtmlCompliedResult, 'utf8');
+
+            //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
+            fs.readFile(path.join(filepath, 'index.js'), 'utf-8', (err: any, data: any) => {
+                let importString = '';
+                if (data) {
+                    const regResult = data.match(importReg);
+                    importString = data.substring(0, regResult.index);
+                }
+                fs.writeFileSync(path.join(filepath, 'index.js'), importString + beautifyJsCompliedResult, 'utf8');
+            });
+
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
             fs.writeFileSync(path.join(filepath, 'index.scss'), beautifyCssCompliedResult, 'utf8');
-            //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
-            fs.writeFileSync(path.join(filepath, 'index.ts'), beautifyJsCompliedResult, 'utf8');
         } else {
             fs.mkdirSync(path.dirname(filepath));
         }

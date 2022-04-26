@@ -1,12 +1,12 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-04-26 10:19:12
+ * @LastEditTime: 2022-04-26 14:19:36
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\test\json2html2.config.ts
  */
-export const fastCodeConfig = {
+export const fastCodeConfig :any = {
     "frame": "vue",
     "base": "src/views/Pages",
     "snippetsPath": "C:/Users/cywu3/AppData/Roaming/Code/User/snippets",
@@ -24,9 +24,27 @@ export const fastCodeConfig = {
                 data: {
                     paramObj: {
                         workSheetName: '',
-                        controlledFiledList: []
+                        authColumns: [],//选择的受控字段列表
+                        collectionId:''
                     },
                     controlledFiledList: [],
+                },
+                mutations:[  //用于快速生成 mutations 方法
+                    {
+                        store:'moudule/dataCollection',
+                        data:{
+                            controlledFiledList2:[],
+                            store2:'',
+                            store3:new Map(),
+                            store4:[],
+                            store5:{}
+                        }
+                    }
+                ],
+                watch:{
+                    collectionId(){
+                       console.log(1111111)
+                    }
                 },
                 methods: {
                     aaa() {
@@ -41,115 +59,8 @@ export const fastCodeConfig = {
                         },
                         list: 'controlledFiledList'
                     },
-                    {
-                        axios: 'colu3434mnDimList',
-                        list: '2222List'
-                    },
-                    {
-                        axios: 'columnDi54545mList',
-                        list: '33333FiledList'
-                    }
-
                 ]
             }
-        },
-        {   //工作表管理页面
-            path: 'reportCenter/worksheetManagement',
-            htmlConfig: {
-                template: "@columnContainer"
-            },
-            jsConfig: {
-                name: 'worksheetManagement',
-                data: {
-                    searchParam: {
-                        pageNo: '1',
-                        pageSize: '10',
-                        worksheetName: ''
-                    },
-                    workSheetList: [],
-                },
-                getList: [
-                    {
-                        axios: 'listWorksheet',
-                        params: '...this.searchParam',
-                        list: 'workSheetList'
-                    },
-                ]
-            }
-        },
-        {    //报表管理页面
-            path: 'reportCenter/reportManagement',
-            htmlConfig: {
-                template: "@columnContainer"
-            },
-            jsConfig: {
-                name: 'reportManagement',
-                data: {
-                    searchParam: {
-                        reportName: '',
-                        reportClassifyId: '',
-                        reportStatus: '',
-                        authorityStatus: '',
-                        startTime: '',
-                        endTime: '',
-                        pageNo: '',
-                        pageSize: "",
-                    },
-                    reportList: [],
-                },
-                getList: [
-                    {
-                        axios: 'list',
-                        params: "...this.searchParam",
-                        list: 'reportList'
-                    },
-                ]
-            }
-        },
-        {    //个人任务页面
-            path: 'reportCenter/personalTasks/taskRequest',
-            htmlConfig: {
-                template: "@columnContainer"
-            },
-            jsConfig: {
-                name: 'taskRequest',
-            },
-            children: [
-                {
-                    path: 'reportList',
-                    htmlConfig: {
-                        template: "@columnContainer"
-                    },
-                    jsConfig: {
-                        name: 'reportManagement',
-                        data: {
-                            searchParam: {
-                                reportName: '',
-                                reportClassifyId: '',
-                            },
-                            reportList: [],
-                        },
-                        getList: [
-                            {
-                                axios: 'list',
-                                params: "...this.searchParam",
-                                list: 'reportList'
-                            },
-                        ]
-                    }
-                },
-                {
-                    path: 'apply',
-                    htmlConfig: {
-                        template: "@columnContainer"
-                    },
-                    jsConfig: {
-                        name: 'apply',
-                        data: {
-                        },
-                    }
-                }
-            ]
-        },
+        }
     ]
 }
