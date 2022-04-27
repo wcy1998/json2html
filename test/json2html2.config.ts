@@ -1,12 +1,12 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-04-27 10:25:56
+ * @LastEditTime: 2022-04-27 15:19:21
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\test\json2html2.config.ts
  */
-export const fastCodeConfig :any = {
+export const fastCodeConfig: any = {
     "frame": "vue",
     "base": "src/views/Pages",
     "snippetsPath": "C:/Users/cywu3/AppData/Roaming/Code/User/snippets",
@@ -18,65 +18,28 @@ export const fastCodeConfig :any = {
             },
             jsConfig: {
                 name: 'workSheetsModal',
-                props: {
-                    collectionId: ''
-                },
                 data: {
                     paramObj: {
                         workSheetName: '',
                         authColumns: [],//选择的受控字段列表
-                        collectionId:''
+                        collectionId: ''
                     },
                     controlledFiledList: [],
                 },
-                mutations:[  //用于快速生成 mutations 方法
-                    {
-                        store:'moudule/dataCollection',
-                        data:{
-                            controlledFiledList2:[],
-                            store2:'',
-                            store3:new Map(),
-                            store4:[],
-                            store5:{}
-                        }
-                    }
-                ],
-                states:[  //用于快速生成 mutations 方法
-                    {
-                        store:'moudule/dataCollection',
-                        data:['controlledFiledList2','store2']
-                    }
-                ],
-                watch:{
-                    collectionId(){
-                       console.log(1111111)
-                    }
-                },
-                computed:{
-                    collections(){
-                        console.log(1111111)
-                     },
-                     fdhskjfh:{
-                         set(){
-
-                         },
-                         get(){
-                             
-                         }
-                     }
-                },
-                methods: {
-                    aaa() {
-                        console.log(675765765)
-                    }
-                },
+                watchToGetList:[{
+                    data:'searchParam',
+                    list:['controlledFiledList'],
+                }],
                 getList: [
                     {
                         axios: 'columnDimList',
                         params: {
                             collectionId: 'this.collectionId'
                         },
-                        list: 'controlledFiledList'
+                        list: 'controlledFiledList',
+                        freshConfig:{
+                            page : 'query'
+                       }
                     },
                 ]
             }

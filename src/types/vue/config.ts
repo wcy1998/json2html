@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-24 14:20:53
- * @LastEditTime: 2022-04-27 10:14:30
+ * @LastEditTime: 2022-04-27 15:06:34
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\types\vue\config.ts
@@ -38,6 +38,7 @@ export interface JsConfig {
     ndata?: object //没有响应性的变量
     getList?: Array<GetListConfig>
     methods?: object
+    watchToGetList?: Array<object> //通过watch去刷新的列表
     computed?: object
     watch?: object
     mutations?: Array<MutationsConfig> //当前组件使用的 mutations
@@ -47,6 +48,10 @@ export interface GetListConfig {
     axios: string
     params?: object | string
     list: string
+    freshConfig?: {
+        page?: 'query' | 'noQuery'
+        param?: string
+    }
 }
 export interface StatesConfig {
     store: string

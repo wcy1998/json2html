@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-25 13:20:55
- * @LastEditTime: 2022-04-27 10:36:08
+ * @LastEditTime: 2022-04-27 15:31:03
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\js-help.ts
@@ -15,7 +15,7 @@ import process from 'process';
 import { js_beautify } from 'js-beautify';
 import { FileInfo } from '../../types/vue';
 export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<string> {
-    const { name, props = {}, data = {}, ndata = {}, getList = [], methods = {}, watch = {}, mutations = [], states = [], computed = {} } = jsConfig;
+    const { name, props = {}, data = {}, ndata = {}, getList = [], methods = {}, watch = {}, mutations = [], states = [], computed = {}, watchToGetList = [] } = jsConfig;
 
     let fileInfo: FileInfo = {}; //事先 去读取下文件的内容
     try {
@@ -36,7 +36,7 @@ export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<st
        props:{${processProps(props)}},
        data(){return${JSON.stringify(data)}},
        computed:{${(states?.length ? processStates(states) + ',' : '') + processComputed(computed, preComputed)}},
-       watch:{${processWatch(watch, preWatches)}},
+       watch:{${processWatch(watch, preWatches, watchToGetList)}},
        beforeCreate(){${processNoReactiveData(ndata)}},
        ${created || 'created(){}'},
        ${mounted || 'mounted(){}'},
@@ -143,7 +143,21 @@ function processComputed (computed: object, preComputed: any): string {
 }
 
 //处理watch相关设置
-function processWatch (watch: object, preWatches: any): string {
+function processWatch (watch: object, preWatches: any, watchToGetList: any): string {
+    if (watchToGetList?.length === 1 && !watchToGetList[0].data) {
+        //设置默认的配置
+        watchToGetList[0].data = 'searchParam';
+    }
+    const watchToGetListString: Array<string> = watchToGetList.map(({ data, list }: any) => {
+        if (preWatches[data]) {
+            delete preWatches[data];
+        }
+        return `${data}(){${list
+            .map((item: any) => {
+                return `this.getDataList('${item}');`;
+            })
+            .join('')}},`;
+    });
     const watchString: Array<string> = Object.entries(watch).map(([key, val]: any) => {
         if (preWatches[key]) {
             delete preWatches[key];
@@ -183,7 +197,7 @@ function processWatch (watch: object, preWatches: any): string {
         }
         return `${value},`;
     });
-    return watchString.join('') + preWatchesString.join('');
+    return watchToGetListString.join('') + watchString.join('') + preWatchesString.join('');
 }
 
 //处理获取列表的相关设置
@@ -191,8 +205,12 @@ function processGetListFunc (getList: Array<any>, preMethods: any) {
     if (preMethods.getDataList) {
         delete preMethods.getDataList;
     }
+    const finalFreshConfig: Array<any> = [];
     let switchCase = 'switch (type) {';
-    getList.forEach(({ axios, params, list }) => {
+    getList.forEach(({ axios, params, list, freshConfig }) => {
+        if (freshConfig) {
+            finalFreshConfig.push({ ...freshConfig, list });
+        }
         switchCase += ` case '${list}':
         action = $http.${axios};
         ${
@@ -210,6 +228,9 @@ function processGetListFunc (getList: Array<any>, preMethods: any) {
         }
         break;`;
     });
+    if (preMethods.pageChange && finalFreshConfig?.length) {
+        delete preMethods.pageChange;
+    }
     switchCase += `
     default:
         break;
@@ -226,6 +247,13 @@ function processGetListFunc (getList: Array<any>, preMethods: any) {
         } catch (e) {
             console.log(e); //eslint-disable-line
         }
+    }${
+        finalFreshConfig?.length === 1
+            ? ',' +
+              `pageChange(pageNo,pageSize){
+        this.searchParam.pageNo=pageNo;
+        this.searchParam.pageSize=pageSize;${finalFreshConfig[0].page === 'query' ? `this.getDataList("${finalFreshConfig[0].list}")` : ''}}`
+            : ''
     }`;
 }
 
