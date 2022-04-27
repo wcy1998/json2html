@@ -1,6 +1,6 @@
 {
     "name": "json2html-wcy",
-    "version": "1.0.21",
+    "version": "1.0.37",
     "description": "transform json to html",
     "main": "./dist/index.cjs.js",
     "module": "./dist/index.esm.js",
@@ -22,7 +22,8 @@
     "license": "MIT",
     "dependencies": {
         "commander": "^9.1.0",
-        "js-beautify": "^1.10.1"
+        "js-beautify": "^1.10.1",
+        "vuex": "^4.0.2"
     },
     "devDependencies": {
         "@commitlint/cli": "^11.0.0",

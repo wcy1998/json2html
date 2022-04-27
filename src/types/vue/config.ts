@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-24 14:20:53
- * @LastEditTime: 2022-04-26 13:19:08
+ * @LastEditTime: 2022-04-27 10:14:30
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\types\vue\config.ts
@@ -36,12 +36,26 @@ export interface JsConfig {
     props?: object
     data?: object
     ndata?: object //没有响应性的变量
-    getList?: Array<object>
+    getList?: Array<GetListConfig>
     methods?: object
+    computed?: object
     watch?: object
-    mutations?: Array<object> //那些mutations
+    mutations?: Array<MutationsConfig> //当前组件使用的 mutations
+    states?: Array<StatesConfig> //当前组件使用的 states
 }
-
+export interface GetListConfig {
+    axios: string
+    params?: object | string
+    list: string
+}
+export interface StatesConfig {
+    store: string
+    data: Array<string>
+}
+export interface MutationsConfig {
+    store: string
+    data: object
+}
 export interface FastCodeConfig {
     frame?: string //要转换的语言类型框架类型
 

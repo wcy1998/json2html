@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-04-26 14:19:36
+ * @LastEditTime: 2022-04-27 10:25:56
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\test\json2html2.config.ts
@@ -41,10 +41,29 @@ export const fastCodeConfig :any = {
                         }
                     }
                 ],
+                states:[  //用于快速生成 mutations 方法
+                    {
+                        store:'moudule/dataCollection',
+                        data:['controlledFiledList2','store2']
+                    }
+                ],
                 watch:{
                     collectionId(){
                        console.log(1111111)
                     }
+                },
+                computed:{
+                    collections(){
+                        console.log(1111111)
+                     },
+                     fdhskjfh:{
+                         set(){
+
+                         },
+                         get(){
+                             
+                         }
+                     }
                 },
                 methods: {
                     aaa() {
