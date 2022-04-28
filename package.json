@@ -1,6 +1,6 @@
 {
     "name": "json2html-wcy",
-    "version": "1.0.39",
+    "version": "1.0.45",
     "description": "transform json to html",
     "main": "./dist/index.cjs.js",
     "module": "./dist/index.esm.js",

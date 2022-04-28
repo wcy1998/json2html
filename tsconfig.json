@@ -8,7 +8,7 @@
     "target": "es6",       /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     //目标最新版本的 ECMAScript
 
-    "module": "commonjs",                                /* Specify what module code is generated. */
+    "module": "CommonJS",                                /* Specify what module code is generated. */
      //指定模块代码生成：“none”、“commonjs”、“amd”、“system”、“umd”、“es2015”或“ESNext”
 
      "lib":["DOM","ES2015"],

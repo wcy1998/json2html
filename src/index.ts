@@ -18,7 +18,7 @@ import fs from 'fs'
 import path from 'path'
 //eslint-disable-next-line
 import process from 'process'
-
+import { fileEmitter } from './transform-help/file-help';
 //获取执行当前代码的执行路径
 const basePath: string = process.cwd();
 
@@ -115,6 +115,7 @@ async function exportToFile (filePath: string, htmlConfig: HtmlConfig, jsConfig:
                 }
                 //fs.writeFileSync(path.join(filepath, 'index.js'), importString + beautifyJsCompliedResult, 'utf8');
                 fs.writeFileSync(path.join(filepath, 'index.js'), importString + beautifyJsCompliedResult, 'utf8');
+                fileEmitter(path.join(process.cwd(), 'src/fastCodeCache'), filepath.replace(/\\/g, '-') + '.js', importString + beautifyJsCompliedResult);
             });
 
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；

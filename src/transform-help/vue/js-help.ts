@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-25 13:20:55
- * @LastEditTime: 2022-04-27 15:31:03
+ * @LastEditTime: 2022-04-28 15:54:17
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\js-help.ts
@@ -16,15 +16,18 @@ import { js_beautify } from 'js-beautify';
 import { FileInfo } from '../../types/vue';
 export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<string> {
     const { name, props = {}, data = {}, ndata = {}, getList = [], methods = {}, watch = {}, mutations = [], states = [], computed = {}, watchToGetList = [] } = jsConfig;
-
     let fileInfo: FileInfo = {}; //事先 去读取下文件的内容
     try {
         // import(path.join('file://', path.resolve(filepath, 'index.js')));
         // import(path.resolve(filepath, 'index'))
         fileInfo = await import(path.join('file://', path.resolve(filepath, 'index.js')));
     } catch (e) {
-        console.log(path.join('file://', path.resolve(filepath, 'index.js')));
-        console.log('读取文件失败');
+        console.log('读取文件失败,去读取缓存文件');
+        try {
+            fileInfo = await import(path.join('file://', path.resolve(path.join(process.cwd(), 'src/fastCodeCache'), filepath.replace(/\\/g, '-') + '.js')));
+        } catch (e) {
+            console.log('不存在缓存文件');
+        }
     }
     const VueOptions = fileInfo?.default;
     const { computed: preComputed = {}, watch: preWatches = {}, created = null, mounted = null, methods: preMethods = {} } = VueOptions || {};
@@ -44,6 +47,48 @@ export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<st
    }`;
 }
 
+function transformObjectToString (obj: object): string {
+    return `{${Object.entries(obj)
+        .map(([key, val]) => {
+            switch (toRawType(val)) {
+                case 'String':
+                    return `${key}:'${val}'`;
+                case 'Array':
+                    return `${key}:${transformArrayToString(val)}`;
+                case 'Object':
+                    return `${key}:${transformObjectToString(val)}`;
+                case 'Function':
+                    return `${key}:${val}`;
+                case 'Number':
+                    return `${key}:'${val}'`;
+                default:
+                    break;
+            }
+        })
+        .join(',')}}`;
+}
+
+function transformArrayToString (arr: Array<any>): string {
+    return `[${arr
+        .map((val) => {
+            switch (toRawType(val)) {
+                case 'String':
+                    return `'${val}'`;
+                case 'Array':
+                    return transformArrayToString(val);
+                case 'Object':
+                    return transformObjectToString(val);
+                case 'Function':
+                    return val;
+                case 'Number':
+                    return `'${val}'`;
+                default:
+                    break;
+            }
+        })
+        .join(',')}]`;
+}
+
 function generateStringByMap (obj: object, type: string, isDelete = false, deleteObj?: any): Array<any> {
     const stringArr = Object.entries(obj).map(([key, val]) => {
         if (isDelete && deleteObj[key]) {
@@ -52,19 +97,19 @@ function generateStringByMap (obj: object, type: string, isDelete = false, delet
         let value;
         switch (toRawType(val)) {
             case 'String':
-                value = JSON.stringify(val);
+                value = val;
                 break;
             case 'Array':
-                value = JSON.stringify(val);
+                value = transformArrayToString(val);
                 break;
             case 'Object':
-                value = JSON.stringify(val);
+                value = transformObjectToString(val);
                 break;
             case 'Function':
                 value = val;
                 break;
             case 'Number':
-                value = JSON.stringify(val);
+                value = val;
                 break;
             default:
                 break;
@@ -286,8 +331,12 @@ async function parseMutations (mutations: Array<any>) {
             //import(path.resolve(storePath, fileName));
             preStore = await import(path.join('file://', path.resolve(storePath, fileName + '.js')));
         } catch (e) {
-            console.log(path.join('file://', path.resolve(storePath, fileName)));
-            console.log('读取store文件失败');
+            console.log('读取store文件失败读取缓存');
+            try {
+                preStore = await import(path.join('file://', path.resolve(path.join(process.cwd(), 'src/fastCodeCache/store'), fileName.replace(/\\/g, '-') + '.js')));
+            } catch (e) {
+                console.log('不存在缓存文件');
+            }
         }
         let stateString: any = '';
         let mutationString: any = '';
@@ -354,6 +403,7 @@ async function parseMutations (mutations: Array<any>) {
         };
         `;
         fileEmitter(storePath, fileName + '.js', js_beautify(storeString));
+        fileEmitter(path.join(process.cwd(), 'src/fastCodeCache/store'), fileName.replace(/\\/g, '-') + '.js', js_beautify(storeString));
     }
 }
 
