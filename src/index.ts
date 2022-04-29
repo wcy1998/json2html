@@ -105,17 +105,23 @@ async function exportToFile (filePath: string, htmlConfig: HtmlConfig, jsConfig:
                 if (data) {
                     const regResult = data.match(importReg);
                     importString = data.substring(0, regResult.index).trimStart();
-                    const matchResult: any = importString.match(/(['|"|;].*)import.*"vuex"/s) || importString.match(/\n{0,}import.*"vuex";?/s);
 
+                    const matchResult: any = importString.match(/(['|"|;].*)import.*"vuex"/s) || importString.match(/\n{0,}import.*"vuex";?/s);
                     if (matchResult && matchResult?.[1]) {
                         importString = importString.slice(0, matchResult.index + matchResult[1].trimEnd().length) + importString.slice(matchResult.index + matchResult[0].length + 1);
                     } else if (matchResult) {
-                        importString = importString.slice(matchResult[0].length);
+                        importString = importString.slice(matchResult.index + matchResult[0].length);
                     }
                 }
                 //fs.writeFileSync(path.join(filepath, 'index.js'), importString + beautifyJsCompliedResult, 'utf8');
                 fs.writeFileSync(path.join(filepath, 'index.js'), importString + beautifyJsCompliedResult, 'utf8');
-                fileEmitter(path.join(process.cwd(), 'src/fastCodeCache'), filepath.replace(/\\/g, '-') + '.js', importString + beautifyJsCompliedResult);
+                const matchResult2: any = importString.matchAll(/(import.*.vue['|"];?\n)/g);
+                let preCutLength = 0;
+                for (const matchResult of matchResult2) {
+                    importString = importString.slice(0, matchResult.index - preCutLength) + importString.slice(matchResult.index + matchResult[0].length - preCutLength);
+                    preCutLength += matchResult[0].length;
+                }
+                fileEmitter(path.join(process.cwd(), 'fastCodeCache'), filepath.replace(/\\/g, '-') + '.js', importString + beautifyJsCompliedResult.replace(/components.*fastCode缓存中没有/s, ''));
             });
 
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-24 14:20:53
- * @LastEditTime: 2022-04-27 15:06:34
+ * @LastEditTime: 2022-04-29 17:57:55
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\types\vue\config.ts
@@ -33,6 +33,8 @@ export interface CssConfig {}
 //js相关配置
 export interface JsConfig {
     name?: string //组件名
+    components?: Array<string>
+    mixins?: Array<string>
     props?: object
     data?: object
     ndata?: object //没有响应性的变量
@@ -41,6 +43,14 @@ export interface JsConfig {
     watchToGetList?: Array<object> //通过watch去刷新的列表
     computed?: object
     watch?: object
+    beforeCreate?: () => void
+    beforeMount?: () => void
+    created?: () => void
+    mounted?: () => void
+    beforeUpdate?: () => void
+    beforeUpdated?: () => void
+    destroyed?: () => void
+    beforeDestroy?: () => void
     mutations?: Array<MutationsConfig> //当前组件使用的 mutations
     states?: Array<StatesConfig> //当前组件使用的 states
 }

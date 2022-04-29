@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-04-27 10:25:56
+ * @LastEditTime: 2022-04-29 15:32:36
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\test\json2html2.config.ts
@@ -21,11 +21,14 @@ export const fastCodeConfig :any = {
                 props: {
                     collectionId: ''
                 },
+                mixins:['lqTable'],
+                components:['lqTable'],
                 data: {
                     paramObj: {
                         workSheetName: '',
                         authColumns: [],//选择的受控字段列表
-                        collectionId:''
+                        collectionId:'',
+                        fdfd:true
                     },
                     controlledFiledList: [],
                 },
@@ -47,6 +50,12 @@ export const fastCodeConfig :any = {
                         data:['controlledFiledList2','store2']
                     }
                 ],
+                mounted(){
+                 console.log(333333)
+                }, 
+                ndata:{
+                    fdfsf:false
+                },
                 watch:{
                     collectionId(){
                        console.log(1111111)

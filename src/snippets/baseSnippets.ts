@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-01 11:31:34
- * @LastEditTime: 2022-04-27 15:55:03
+ * @LastEditTime: 2022-04-29 13:11:27
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\snippets\baseSnippets.ts
@@ -13,9 +13,9 @@ export const baseSnippets: object = {
         prefix: '@json2html',
         body: `
     export const json2htmlCfg ={
-          frame:'vue',
-          base:'',
-          pagesConfig:[
+          frame:'vue', //要转换成的框架
+          base:'',  //生成文件的基础路径
+          pagesConfig:[  //页面配置
               
           ]
       }
@@ -27,11 +27,11 @@ export const baseSnippets: object = {
         prefix: '@pageConfig',
         body: `
     {
-       path:'$1',
-       htmlConfig:{
+       path:'$1',  //当前页面 组件 的文件路径
+       htmlConfig:{  //html相关的配置
 
        },
-       jsConfig:{
+       jsConfig:{  //js相关的配置
            
        }
     }
@@ -42,18 +42,22 @@ export const baseSnippets: object = {
     json2htmlDomConfig: {
         prefix: '@DomConfig',
         body: `
-       {tag:'$1',
-       clazz:'',
-       style:''}
+       {
+           tag:'$1', 
+           clazz:'',
+           style:''
+       }
   `,
         description: '生成json2html单个元素配置',
     },
     json2htmlTemplateDomConfig: {
         prefix: '@templateDomConfig',
         body: `
-       {template:'$1',
+       {
+           template:'$1',
            clazz:'',
-           style:''} 
+           style:''
+       } 
   `,
         description: '生成json2html单个模板元素配置',
     },
@@ -85,5 +89,37 @@ export const baseSnippets: object = {
                 params:' ',
             }`,
         description: '生成请求getList的配置',
+    },
+
+    json2htmlMutationsConfig: {
+        prefix: '@mutations',
+        body: `[  //用于快速生成 mutations 方法
+            {
+                store:'moudule/$1',
+                data:{
+                    state:''
+                }
+            }
+        ],`,
+        description: '用于快速生成 mutations 方法',
+    },
+    json2htmlStatesConfig: {
+        prefix: '@states',
+        body: `[  //用于快速生成 mutations 方法
+            {
+                store:'moudule/$1',
+                data:['state']
+            }
+        ],`,
+        description: '用于快速生成 states 方法',
+    },
+    json2htmlLqSelect: {
+        prefix: '@select',
+        body: ` tag: 'lq-select', 
+                ":data-list": "$1",
+                ":default-props": '$2',
+                ":basic-config": '$3',
+                "@change": '$4'`,
+        description: 'lq-select',
     },
 };

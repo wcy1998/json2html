@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-25 10:08:22
- * @LastEditTime: 2022-04-25 11:39:31
+ * @LastEditTime: 2022-04-29 09:54:49
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\http-help.ts
@@ -28,7 +28,7 @@ export function emitAxiosFiles (axiosConfigs: Array<axiosConfig>) {
             const urlPath: string = path.resolve(basePath, relativePath);
             const relativePathArr: Array<string> = relativePath.split('/');
             let axiosName = '';
-            for (let i = relativePathArr.length - 1; i > 0; i--) {
+            for (let i = relativePathArr.length - 1; i >= 0; i--) {
                 axiosName += i === relativePathArr.length - 1 ? relativePathArr[i] : relativePathArr[i].replace(/^./, relativePathArr[i][0].toLocaleUpperCase());
             }
 
@@ -36,7 +36,7 @@ export function emitAxiosFiles (axiosConfigs: Array<axiosConfig>) {
              import { server } from '@/axios';
              export function ${axiosName} (params) {
                  return server({
-                     url: '${relativePath}',
+                     url: '/${relativePath}',
                      method: '${type}',
                      params,
                  });
