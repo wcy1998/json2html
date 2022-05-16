@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-04-25 17:28:17
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-05-16 16:58:19
+ * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\css-help.ts
  */
@@ -14,23 +14,32 @@ import { HtmlConfig } from '../../types/vue';
 export const json2css = (
     htmlConfig: HtmlConfig | undefined, //生成html的配置
     cssTemplateConfig: any, //css模板
-    isRoot: boolean, //是不是更节点
+    isRoot: boolean, //是不是根节点
     usedCssMixin: Array<string> //使用过的那些cssMixin 因为mixin需要放在最开头
 ): string => {
+    //如果不存在就 返回空字符串
     if (!htmlConfig) {
         return '';
     }
 
     //解析css中一些需要的属性 clazz style  cssMixin  tag
-    const { clazz: clazz2, style = '', cssMixin = '', tag } = htmlConfig;
+    const {
+        clazz: clazz2, //元素类
+        style = '', //元素样式
+        cssMixin = '', //元素使用的mixins
+        tag, //元素的标签
+    } = htmlConfig;
 
     // extractCommonStyles(style,cssTemplateConfig)
+
+    //先保存在之前的样式
     let clazz = clazz2;
 
+    //判断当前的 元素时候写了 cssMixins 或者 style
     const noClassStyle = !!(!clazz && (style || cssMixin));
 
-    //如果没有设置class 就使用标签名来命名
     if (noClassStyle) {
+        //如果没有设置class 就使用标签名来命名
         clazz = `>${tag}`;
     } else if (clazz) {
         clazz = `.${clazz}`;
@@ -41,6 +50,7 @@ export const json2css = (
 
     styleString && !/;$/.test(styleString.trim()) && (styleString += ';');
 
+    //是否存在子节点
     const childNodeJson: Array<HtmlConfig> | undefined = htmlConfig?.children;
 
     return clazz

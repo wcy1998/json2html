@@ -8,7 +8,7 @@
  */
 import Factory from './factory';
 import VueComplier from '../complier/vueCompiler';
-import VueParser from '../parser/parser/config2FileVueParser';
+import VueParser from '../parser/config2FileParser/config2FileVueParser';
 import VueConfigParser from '../parser/file2FastCodeConfigParser/file2FastCodeConfigVueParser';
 import { FastCodeConfig } from '../types/vue';
 export default class VueFactory implements Factory {

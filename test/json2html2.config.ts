@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-04-29 15:32:36
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-05-15 16:24:50
+ * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\test\json2html2.config.ts
  */
@@ -14,12 +14,16 @@ export const fastCodeConfig :any = {
         { //一键生成工作表弹窗
             path: 'DataSets/workSheetsModal',
             htmlConfig: {
-                template: "@columnContainer"
+                template: "@columnContainer",
+                $style:{width:'fdf'?'':''}, 
+                $fdf:'fdsfs',
+                ":fdddf":"true",
+                ":fdfsdg":"fdsfdsf"
             },
             jsConfig: {
                 name: 'workSheetsModal',
                 props: {
-                    collectionId: ''
+                    collectionId: 'gfdgfd'
                 },
                 mixins:['lqTable'],
                 components:['lqTable'],

@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2022-04-01 11:31:34
- * @LastEditTime: 2022-04-29 13:11:27
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-05-15 16:39:47
+ * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\snippets\baseSnippets.ts
  */
@@ -116,10 +116,67 @@ export const baseSnippets: object = {
     json2htmlLqSelect: {
         prefix: '@select',
         body: ` tag: 'lq-select', 
-                ":data-list": "$1",
-                ":default-props": '$2',
-                ":basic-config": '$3',
-                "@change": '$4'`,
+                $dataList: "$1",
+                $defaultProps: '$2',
+                $basicConfig: '$3',
+                vModel:'$6',
+                "@change": '$4',
+                "@nodeClick": '$5'`,
         description: 'lq-select',
+    },
+    json2htmlInput: {
+        prefix: '@input',
+        body: `  tag: 'Input',
+                 vModel: '$1',
+                 $style:{width:'$2'},
+                 maxlength: '$3',
+                 '@on-change': "limitInputLength"`,
+        description: 'input',
+    },
+    json2htmlLabel: {
+        prefix: '@label',
+        body: ` template: '@requiredLabel',
+                style: 'width: $1px;',
+                text: '$2'`,
+        description: 'label',
+    },
+    json2htmlVirtualList: {
+        prefix: '@list',
+        body: `  tag: 'virtual-table-list',
+        $dataList: '$1',
+        $tableWidth: '$2',
+        $tableHeight: '$3',
+        $columns: '$4',
+        $headerRowStyle: "{$5}",`,
+        description: 'virtualList',
+    },
+    json2htmTableColumns: {
+        prefix: '@columns',
+        body: ` {
+            title: '$1',
+            width: $2,
+            key: '$3',
+            render:(h,params)=>h()
+        },`,
+        description: 'columns',
+    },
+    json2htmTableRenderSelect: {
+        prefix: '@renderSelect',
+        body: ` 
+        'lq-select', {
+            props: {
+                width: '$1',
+                basicConfig: {
+                    size: '$2',
+                    transfer: $3
+                },
+                dataList: $4,
+                defaultProps: $5,
+                value: this.paramObj.authColumns[params.idx - 1].tagId,
+            },
+            on: {
+                nodeClick: (e) => { this.paramObj.authColumns[params.idx - 1].tagId = e.id }
+            }`,
+        description: 'renderSelect',
     },
 };

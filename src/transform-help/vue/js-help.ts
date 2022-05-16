@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2022-04-25 13:20:55
- * @LastEditTime: 2022-04-29 16:58:02
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-05-15 15:49:13
+ * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\js-help.ts
  */
@@ -14,6 +14,7 @@ import { fileEmitter } from '../file-help';
 import process from 'process';
 import { js_beautify } from 'js-beautify';
 import { FileInfo } from '../../types/vue';
+
 export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<string> {
     const {
         name,
@@ -67,7 +68,7 @@ export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<st
    }`;
 }
 
-function transformObjectToString (obj: object): string {
+export function transformObjectToString (obj: object): string {
     return `{${Object.entries(obj)
         .map(([key, val]) => {
             switch (toRawType(val)) {
@@ -90,7 +91,7 @@ function transformObjectToString (obj: object): string {
         .join(',')}}`;
 }
 
-function transformArrayToString (arr: Array<any>): string {
+export function transformArrayToString (arr: Array<any>): string {
     return `[${arr
         .map((val) => {
             switch (toRawType(val)) {
@@ -125,6 +126,9 @@ function generateStringByMap (obj: object, type: string, isDelete = false, delet
                 break;
             case 'Object':
                 value = transformObjectToString(val);
+                break;
+            case 'String':
+                value = `'${val}'`;
                 break;
             default:
                 value = val;
@@ -268,23 +272,30 @@ function processGetListFunc (getList: Array<any>, preMethods: any) {
     }
     const finalFreshConfig: Array<any> = [];
     let switchCase = 'switch (type) {';
-    getList.forEach(({ axios, params, list, freshConfig }) => {
+
+    let totalSwitchCase = 'switch (type) {';
+    let hasTotal = false;
+    getList.forEach(({ axios, params, list, freshConfig, total }) => {
         if (freshConfig) {
             finalFreshConfig.push({ ...freshConfig, list });
+        }
+        if (total) {
+            hasTotal = true;
+            totalSwitchCase += `case '${list}':  this.${list}Total = res.total; break; `;
         }
         switchCase += ` case '${list}':
         action = $http.${axios};
         ${
             params
-                ? 'params = {' +
-                  (typeof params === 'string'
-                      ? params
-                      : Object.entries(params)
-                            .map(([key, val]) => {
-                                return `${key}:${val}`;
-                            })
-                            .join(',')) +
-                  '}'
+                ? typeof params === 'string'
+                    ? 'params = ' + params
+                    : 'params = {' +
+                      Object.entries(params)
+                          .map(([key, val]) => {
+                              return `${key}:${val}`;
+                          })
+                          .join(',') +
+                      '}'
                 : ''
         }
         break;`;
@@ -296,6 +307,11 @@ function processGetListFunc (getList: Array<any>, preMethods: any) {
     default:
         break;
     }`;
+    totalSwitchCase += `
+    default:
+        break;
+    }`;
+
     return `
     async getDataList (type) {
         let action,params;
@@ -304,6 +320,7 @@ function processGetListFunc (getList: Array<any>, preMethods: any) {
             let res = await action(params);
             if (res.success) {
                 this[type] = res.obj;
+                ${hasTotal ? totalSwitchCase : ''}
             }
         } catch (e) {
             console.log(e); //eslint-disable-line
@@ -311,7 +328,7 @@ function processGetListFunc (getList: Array<any>, preMethods: any) {
     }${
         finalFreshConfig?.length === 1
             ? ',' +
-              `pageChange(pageNo,pageSize){
+              `pageChange({pageNo,pageSize}){
         this.searchParam.pageNo=pageNo;
         this.searchParam.pageSize=pageSize;${finalFreshConfig[0].page === 'query' ? `this.getDataList("${finalFreshConfig[0].list}")` : ''}}`
             : ''
@@ -440,7 +457,7 @@ function processMutations (mutations: Array<any>): string {
 function processStates (states: Array<any>): string {
     return states
         .map(({ store, data }) => {
-            return `...mapState('${store.split('/')[store.split('/').length - 1]}',[${data.map((item: string) => `'${item}'`).join(',')}])`;
+            return `...mapState(${store === 'state' ? '' : '\'' + store.split('/')[store.split('/').length - 1] + '\','}[${data.map((item: string) => `'${item}'`).join(',')}])`;
         })
         .join(',');
 }

@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2022-03-24 13:40:32
- * @LastEditTime: 2022-04-26 09:27:41
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-05-15 16:04:38
+ * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\html-help.ts
  */
@@ -45,7 +45,7 @@ export const json2htmlNode = (
                     .map(
                         ({ type, value }) =>
                             `
-                  ${fromAttributes(type, value, /^:/.test(type))}
+                  ${fromAttributes(type, value)}
                   `
                     )
                     .join('')}${isUnaryTag ? '/' : ''}>${text}
