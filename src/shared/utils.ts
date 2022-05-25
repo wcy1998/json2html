@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2022-03-23 13:23:46
- * @LastEditTime: 2022-04-19 19:53:27
- * @LastEditors: your name
+ * @LastEditTime: 2022-05-24 17:40:49
+ * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\shared\utils.ts
  */
@@ -98,4 +98,10 @@ export function getTagNamespace (tag: string): string | undefined {
     if (tag === 'math') {
         return 'math';
     }
+}
+
+//获取文件路径的最后一部分
+export function getFilePathLastPathBySlash (filePath: string): string {
+    const pathArr: Array<string> = filePath.split('/');
+    return pathArr[pathArr.length - 1];
 }

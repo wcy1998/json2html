@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-01 11:31:34
- * @LastEditTime: 2022-05-15 16:39:47
+ * @LastEditTime: 2022-05-25 16:53:14
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\snippets\baseSnippets.ts
@@ -78,6 +78,11 @@ export const baseSnippets: object = {
                 axios: '$1',
                 params: {},
                 list: '',
+                total:false,
+                pageChange:{
+                    get:false,
+                },
+                watch:''
             },
         ],`,
         description: '生成请求getList的配置',
@@ -178,5 +183,18 @@ export const baseSnippets: object = {
                 nodeClick: (e) => { this.paramObj.authColumns[params.idx - 1].tagId = e.id }
             }`,
         description: 'renderSelect',
+    },
+    json2htmTableConfirmModal: {
+        prefix: '@confirmModal',
+        body: ` 
+        this.$lqConfirm({
+            title: '$1?',
+            type: 'warning',
+            showCancelButton: true,
+            onConfirm: () => {
+                return true;
+            },
+        });`,
+        description: 'confirmModal',
     },
 };

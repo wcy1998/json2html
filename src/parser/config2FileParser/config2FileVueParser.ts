@@ -8,7 +8,7 @@
  */
 //将配置转换成文件过程的解析器
 import Config2FileParser from './config2FileParser';
-import { FastCodeConfig, HtmlConfig, PagesConfig } from '../../types/vue';
+import { FastCodeConfig, HtmlConfig, parsedPagesConfig } from '../../types/vue';
 import cloneDeep from 'lodash/cloneDeep';
 //eslint-disable-next-line
 import path from 'path'
@@ -27,7 +27,7 @@ export default class Config2FileVueParser implements Config2FileParser {
         this.base = fastCodeConfig.base;
         let fatherPath = '';
 
-        const traverse = (pagesConfig: Array<PagesConfig>, isRoot: boolean): void => {
+        const traverse = (pagesConfig: Array<parsedPagesConfig>, isRoot: boolean): void => {
             pagesConfig.forEach((page, index) => {
                 page.path = isRoot ? path.join(this.base || '', page.path) : path.join(fatherPath, page.path);
                 if (index === pagesConfig.length - 1 || isRoot) {

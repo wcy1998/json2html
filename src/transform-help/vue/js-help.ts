@@ -1,74 +1,113 @@
 /*
  * @Author: your name
  * @Date: 2022-04-25 13:20:55
- * @LastEditTime: 2022-05-15 15:49:13
+ * @LastEditTime: 2022-05-25 17:57:50
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\js-help.ts
  */
 
-import { JsConfig } from '../../types/vue';
+import { JsConfig, VueOptions, MutationsConfig, VueFileInfo, StoreFileInfo, StoreOptions, Props, GetListConfig } from '../../types/vue';
 import { toRawType } from '../../shared/utils';
 import path from 'path';
 import { fileEmitter } from '../file-help';
 import process from 'process';
 import { js_beautify } from 'js-beautify';
-import { FileInfo } from '../../types/vue';
+import { getFilePathLastPathBySlash } from '../../shared/utils';
 
-export async function json2Js (jsConfig: JsConfig, filepath: string): Promise<string> {
+//将配置转换成js代码
+export async function json2Js (
+    jsConfig: JsConfig, //用户定义的js配置
+    filepath: string //当前页面对应的地址
+): Promise<string> {
     const {
-        name,
-        props = {},
-        data = {},
-        ndata = {},
-        getList = [],
-        methods = {},
-        watch = {},
-        mutations = [],
-        states = [],
-        computed = {},
-        watchToGetList = [],
+        name, //组件的name
+        props, //用户配置的props
+        data, //用户配置的data
+        ndata, //不具备响应性的数据
+        getList, //用户定义的获取列表的配置
+        methods, //用户定义的方法
+        watch, //用户定义的watch
+        mutations, //用户定义的需要使用的mutations
+        states, //用户需要使用的states
+        computed, //用户需要使用的计算属性
+        beforeCreate,
         created,
+        beforeMount,
         mounted,
+        beforeUpdate,
+        updated,
         beforeDestroy,
-        components,
-        mixins,
+        destroyed,
+        components, //组件的相关配置
+        mixins, //mixins相关的配置
     } = jsConfig;
-    let fileInfo: FileInfo = {}; //事先 去读取下文件的内容
+    let fileInfo: VueFileInfo = {}; //先去读取一下当前文件的上一次输出的内容 这里获取上下文件内容的方式目前是通过import 所以可能会存在一些引入错误 后续会改成文本读取
+
     try {
         // import(path.join('file://', path.resolve(filepath, 'index.js')));
         // import(path.resolve(filepath, 'index'))
         fileInfo = await import(path.join('file://', path.resolve(filepath, 'index.js')));
     } catch (e) {
-        console.log('读取文件失败,去读取缓存文件');
+        console.log(`读取${filepath}文件失败,尝试去读取缓存文件`);
         try {
             fileInfo = await import(path.join('file://', path.resolve(path.join(process.cwd(), 'fastCodeCache'), filepath.replace(/\\/g, '-') + '.js')));
         } catch (e) {
-            console.log('不存在缓存文件');
+            console.log('不存在缓存文件或者读取缓存文件失败');
         }
     }
-    const VueOptions = fileInfo?.default;
-    const { computed: preComputed = {}, watch: preWatches = {}, methods: preMethods = {} } = VueOptions || {};
+
+    const VueOptions: VueOptions = fileInfo?.default || {};
+
+    const { computed: preComputed, watch: preWatches, methods: preMethods } = VueOptions || {};
+
+    //先解析用户的mutations相关配置在相应的文件中生成需要的state 和 mutations
     parseMutations(mutations);
 
-    return `${mutations?.length || states?.length ? `import { ${states?.length ? 'mapState,' : ''}${mutations?.length ? 'mapMutations' : ''}} from "vuex";` : ''}
+    //如果使用了mutations 和 states 的话 需要引入一下可以防止import的失效
+    return `${mutations?.length || states?.length ? `import { ${states?.length ? 'mapState,' : ''}${mutations?.length ? 'mapMutations' : ''}} from "vuex";` : ''} 
     export default {
        name:"${name}",
-       components:{${processComponents(components)}},//fastCode缓存中没有
-       mixins:[${processMixins(mixins)}],
-       props:{${processProps(props)}},
-       data(){return${JSON.stringify(data)}},
-       computed:{${(states?.length ? processStates(states) + ',' : '') + processComputed(computed, preComputed)}},
-       watch:{${processWatch(watch, preWatches, watchToGetList)}},
-       beforeCreate(){${processNoReactiveData(ndata)}},
-       ${created || 'created(){}'},
-       ${mounted || 'mounted(){}'},
-       ${beforeDestroy || 'beforeDestroy(){}'},
+       ${components ? 'components:{' + processComponents(components) + '},//fastCode缓存中没有' : ''}
+       ${mixins ? 'mixins:[' + processMixins(mixins) + '],' : ''}
+       ${props ? 'props:{' + processProps(props) + '},' : ''}
+       data(){return{${processData(data, getList)}}},
+       ${states || computed || preComputed ? 'computed:{' + (states?.length ? processStates(states) + ',' : '') + processComputed(computed, preComputed) + '},' : ''}
+       ${watch || preWatches || getList ? 'watch:{' + processWatch(watch, preWatches, getList) + '},' : ''}
+       ${beforeCreate || ndata ? 'beforeCreate(){' + processNoReactiveData(ndata) + getFunctionContent(beforeCreate) + '},' : ''}
+       ${created ? created + ',' : ''}
+       ${beforeMount ? beforeMount + ',' : ''}
+       ${mounted ? mounted + ',' : ''}
+       ${beforeUpdate ? beforeUpdate + ',' : ''}
+       ${updated ? updated + ',' : ''}
+       ${beforeDestroy ? beforeDestroy + ',' : ''}
+       ${destroyed ? destroyed + ',' : ''}
        methods:{${mutations?.length ? processMutations(mutations) + ',' : ''}${(getList?.length ? processGetListFunc(getList, preMethods) + ',' : '') + processMethods(methods, preMethods)}}
    }`;
 }
 
-export function transformObjectToString (obj: object): string {
+//将出入的不同类型的 同一转换成 有意义的字符串
+export function transformAllTypesToString (value: any): string {
+    switch (toRawType(value)) {
+        case 'Function':
+            return value;
+        case 'Map':
+            return 'new Map()';
+        case 'Set':
+            return 'new Set()';
+        case 'Array':
+            return transformArrayToString(value);
+        case 'Object':
+            return transformObjectToString(value);
+        case 'String':
+            return `'${value}'`;
+        default:
+            return JSON.stringify(value);
+    }
+}
+
+//将对象转换成字符串
+export function transformObjectToString (obj: Record<string, any>): string {
     return `{${Object.entries(obj)
         .map(([key, val]) => {
             switch (toRawType(val)) {
@@ -91,6 +130,7 @@ export function transformObjectToString (obj: object): string {
         .join(',')}}`;
 }
 
+//将数组转换成字符串
 export function transformArrayToString (arr: Array<any>): string {
     return `[${arr
         .map((val) => {
@@ -114,53 +154,79 @@ export function transformArrayToString (arr: Array<any>): string {
         .join(',')}]`;
 }
 
-function generateStringByMap (obj: object, type: string, isDelete = false, deleteObj?: any): Array<any> {
+//生成一个通过对象生成一个字符串的map
+function generateStringByMap (
+    obj: Record<string, any> = {}, //传入的对象
+    returnFunc: (key: string, originVal: any, stringValue: string) => string, //生成单个字符串的规则方法
+    isDelete = false, //是否要删除
+    deleteMap?: Record<string, any> //删除的映射
+): Array<any> {
     const stringArr = Object.entries(obj).map(([key, val]) => {
-        if (isDelete && deleteObj[key]) {
-            delete deleteObj[key];
+        if (isDelete && deleteMap && deleteMap[key]) {
+            delete deleteMap[key];
         }
-        let value;
-        switch (toRawType(val)) {
-            case 'Array':
-                value = transformArrayToString(val);
-                break;
-            case 'Object':
-                value = transformObjectToString(val);
-                break;
-            case 'String':
-                value = `'${val}'`;
-                break;
-            default:
-                value = val;
-                break;
-        }
-
-        switch (type) {
-            case 'props':
-                return `${key}:{type:${toRawType(val)},default(){return ${value}}}`;
-            case 'ndata':
-                return `this.${key}=${value}`;
-            case 'mutation':
-                value = JSON.stringify(val);
-                break;
-        }
+        const stringValue = transformAllTypesToString(val);
+        return returnFunc(key, val, stringValue);
     });
     return stringArr;
 }
 
-//处理 props
-function processProps (props: object): string {
-    const propsString: Array<string> = generateStringByMap(props, 'props', false);
+//处理 props 支持多类型
+function processProps (props: Props | undefined | Record<string, any>): string | void {
+    if (!props) {
+        return;
+    }
+    const propsString: Array<string> = generateStringByMap(
+        props,
+        (key, originVal, stringValue) => {
+            if (originVal.type && originVal.default) {
+                return `${key}:{type:[${originVal.type.map((type: any) => type.name)}],default(){return ${transformAllTypesToString(originVal.default)}}}`;
+            } else {
+                return `${key}:{type:${toRawType(stringValue)},default(){return ${stringValue}}}`;
+            }
+        },
+        false
+    );
+
     return propsString.join(',');
 }
 
+//处理 data
+function processData (data: Record<string, any> | undefined, getList: Array<GetListConfig> | undefined): string | void {
+    if (!data && !getList) {
+        return;
+    }
+    let loadingData = '';
+    getList?.forEach(({ loading, list }) => {
+        if (loading && data && !data[list + 'Loading']) {
+            loadingData += `${list + 'Loading'}:false,`;
+        }
+    });
+    const dataString: Array<string> = generateStringByMap(
+        data,
+        (key, originVal, stringValue) => {
+            return `${key}:${stringValue}`;
+        },
+        false
+    );
+
+    return dataString.join(',') + (loadingData ? ',' + loadingData : '');
+}
+
 //处理 没有响应性的数据
-function processNoReactiveData (ndata: object): string {
-    const ndataString: Array<string> = generateStringByMap(ndata, 'ndata', false);
+function processNoReactiveData (ndata: Record<string, any> = {}): string {
+    const ndataString: Array<string> = generateStringByMap(
+        ndata,
+        (key, originVal, stringValue) => {
+            return `this.${key}=${stringValue}`;
+        },
+        false
+    );
     return ndataString.join(';');
 }
 
-function processComputed (computed: object, preComputed: any): string {
+//处理computed
+function processComputed (computed: Record<string, any> = {}, preComputed: any = {}): string {
     const computedString: Array<string> = Object.entries(computed).map(([key, val]: any) => {
         if (preComputed[key]) {
             delete preComputed[key];
@@ -208,42 +274,66 @@ function processComputed (computed: object, preComputed: any): string {
 }
 
 //处理watch相关设置
-function processWatch (watch: object, preWatches: any, watchToGetList: any): string {
-    if (watchToGetList?.length === 1 && !watchToGetList[0].data) {
-        //设置默认的配置
-        watchToGetList[0].data = 'searchParam';
-    }
-    const watchToGetListString: Array<string> = watchToGetList.map(({ data, list }: any) => {
-        if (preWatches[data]) {
-            delete preWatches[data];
+function processWatch (watch: Record<string, any> = {}, preWatches: any = {}, getList: Array<GetListConfig> = []): string {
+    const watchToGetListMap = Object.create(null);
+    getList.forEach(({ watch, list }) => {
+        if (watch) {
+            if (!watchToGetListMap[watch]) {
+                watchToGetListMap[watch] = [list];
+            } else {
+                watchToGetListMap[watch].push(list);
+            }
         }
-        return `${data}(){${list
-            .map((item: any) => {
-                return `this.getDataList('${item}');`;
-            })
-            .join('')}},`;
     });
-    const watchString: Array<string> = Object.entries(watch).map(([key, val]: any) => {
-        if (preWatches[key]) {
-            delete preWatches[key];
+
+    const watchToGetListString: Array<string> = Object.entries(watchToGetListMap).map(([key, val]: any) => {
+        let preContent = '';
+        let isObj = false;
+        if (watch[key]) {
+            if (watch[key].handler) isObj = true;
+            preContent = getFunctionContent(watch[key]) || getFunctionContent(watch[key].handler);
         }
-        let value: string;
-        switch (toRawType(val)) {
-            case 'Function':
-                value = val;
-                break;
-            case 'Object':
-                value = `${key}:{
+        return !isObj
+            ? `'${key}'(){${val
+                  .map((list: any) => {
+                      return `this.getDataList('${list}');`;
+                  })
+                  .join('')}${preContent}},`
+            : `'${key}':{
+                    handler(){
+                    ${val
+                        .map((list: any) => {
+                            return `this.getDataList('${list}');`;
+                        })
+                        .join('')}${preContent}},
+                    ${typeof watch[key].deep === 'boolean' ? 'deep:' + (watch[key].deep ? 'true,' : 'false,') : ''}
+                    ${typeof watch[key].immediate === 'boolean' ? 'immediate:' + (watch[key].immediate ? 'true' : 'false') : ''}},
+                 `;
+    });
+    const watchString: Array<string> = Object.entries(watch)
+        .filter(([key]: any) => !watchToGetListMap[key])
+        .map(([key, val]: any) => {
+            if (preWatches[key] || watchToGetListMap[key]) {
+                delete preWatches[key];
+            }
+            let value: string;
+            switch (toRawType(val)) {
+                case 'Function':
+                    value = val;
+                    break;
+                case 'Object':
+                    value = `${key}:{
                     ${val.handler},
-                    deep:${val.deep ? 'true' : 'false'}
+                    ${typeof val.deep === 'boolean' ? 'deep:' + (val.deep ? 'true,' : 'false,') : ''}
+                    ${typeof val.immediate === 'boolean' ? 'immediate:' + (val.immediate ? 'true' : 'false') : ''}
                 }`;
-                break;
-            default:
-                value = val;
-                break;
-        }
-        return `${value},`;
-    });
+                    break;
+                default:
+                    value = val;
+                    break;
+            }
+            return `${value},`;
+        });
     const preWatchesString = Object.entries(preWatches).map(([key, val]: any) => {
         let value: string;
         switch (toRawType(val)) {
@@ -253,7 +343,8 @@ function processWatch (watch: object, preWatches: any, watchToGetList: any): str
             case 'Object':
                 value = `${key}:{
                     ${val.handler},
-                    deep:${val.deep ? 'true' : 'false'}
+                    ${typeof val.deep === 'boolean' ? 'deep:' + (val.deep ? 'true,' : 'false,') : ''}
+                    ${typeof val.immediate === 'boolean' ? 'immediate:' + (val.immediate ? 'true' : 'false') : ''}
                 }`;
                 break;
             default:
@@ -266,24 +357,53 @@ function processWatch (watch: object, preWatches: any, watchToGetList: any): str
 }
 
 //处理获取列表的相关设置
-function processGetListFunc (getList: Array<any>, preMethods: any) {
+function processGetListFunc (
+    getList: Array<GetListConfig> = [], //获取列表的相关配置
+    preMethods: any = {} //文件之前的methods内容
+) {
+    //如果之前的文件内容存在了生成的getDataList了 那就先删除掉
     if (preMethods.getDataList) {
         delete preMethods.getDataList;
     }
-    const finalFreshConfig: Array<any> = [];
-    let switchCase = 'switch (type) {';
 
+    //最终的刷新配置
+    const finalPageChangeConfig: Array<any> = [];
+
+    //接口相关的switch语句
+    let axiosSwitchCase = 'switch (type) {';
+
+    //总数相关的switch语句
     let totalSwitchCase = 'switch (type) {';
+
+    let loadingSwitchCase = 'switch (type) {';
+
+    //是否存在total的设置
     let hasTotal = false;
-    getList.forEach(({ axios, params, list, freshConfig, total }) => {
-        if (freshConfig) {
-            finalFreshConfig.push({ ...freshConfig, list });
-        }
-        if (total) {
-            hasTotal = true;
-            totalSwitchCase += `case '${list}':  this.${list}Total = res.total; break; `;
-        }
-        switchCase += ` case '${list}':
+    let hasLoading = false;
+
+    getList.forEach(
+        ({
+            axios, //接口
+            params, //请求参数
+            list, //存储结果的对象
+            pageChange, //刷新配置
+            loading, //是否记录加载状态
+            total, //总数
+        }) => {
+            //如果存在刷新配置就加入
+            if (pageChange) {
+                finalPageChangeConfig.push({ ...pageChange, list });
+            }
+            if (total) {
+                hasTotal = true;
+                totalSwitchCase += `case '${list}':  this.${list}Total = res.total; break; `;
+            }
+            if (loading) {
+                hasLoading = true;
+                loadingSwitchCase += `case '${list}':  this.${list}Loading = false; break; `;
+            }
+            axiosSwitchCase += ` case '${list}':
+        ${loading ? 'this.' + list + 'Loading = true' : ''}
         action = $http.${axios};
         ${
             params
@@ -299,11 +419,14 @@ function processGetListFunc (getList: Array<any>, preMethods: any) {
                 : ''
         }
         break;`;
-    });
-    if (preMethods.pageChange && finalFreshConfig?.length) {
+        }
+    );
+
+    //如果之前写了pageChange 方法 并且当前配置了 刷新配置
+    if (preMethods.pageChange && finalPageChangeConfig?.length) {
         delete preMethods.pageChange;
     }
-    switchCase += `
+    axiosSwitchCase += `
     default:
         break;
     }`;
@@ -311,32 +434,46 @@ function processGetListFunc (getList: Array<any>, preMethods: any) {
     default:
         break;
     }`;
-
+    loadingSwitchCase += `
+    default:
+        break;
+    }`;
     return `
     async getDataList (type) {
         let action,params;
-        ${switchCase}
+        ${axiosSwitchCase}
         try {
             let res = await action(params);
             if (res.success) {
                 this[type] = res.obj;
                 ${hasTotal ? totalSwitchCase : ''}
+                ${hasLoading ? loadingSwitchCase : ''}
             }
         } catch (e) {
             console.log(e); //eslint-disable-line
         }
     }${
-        finalFreshConfig?.length === 1
+        finalPageChangeConfig?.length
             ? ',' +
               `pageChange({pageNo,pageSize}){
         this.searchParam.pageNo=pageNo;
-        this.searchParam.pageSize=pageSize;${finalFreshConfig[0].page === 'query' ? `this.getDataList("${finalFreshConfig[0].list}")` : ''}}`
+        this.searchParam.pageSize=pageSize;
+        ${
+            finalPageChangeConfig.filter((config) => config.get).length
+                ? finalPageChangeConfig
+                      .filter((config) => config.get)
+                      .map(({ list }) => {
+                          return `this.getDataList("${list}")`;
+                      })
+                      .join(';')
+                : ''
+        }}`
             : ''
     }`;
 }
 
 //处理方法相关
-function processMethods (methods: object, preMethods: any): string {
+function processMethods (methods: Record<string, any> = {}, preMethods: any = {}): string {
     const methodsString = Object.entries(methods).map(([key, val]) => {
         if (preMethods[key]) {
             delete preMethods[key];
@@ -353,86 +490,88 @@ function processMethods (methods: object, preMethods: any): string {
     return methodsString.join('') + preMethodsString.join('');
 }
 
-//解析mutations
-async function parseMutations (mutations: Array<any>) {
-    for (const { store, data } of mutations) {
-        const fileName = store.split('/')[store.split('/').length - 1];
+//解析mutations配置
+async function parseMutations (mutations: Array<MutationsConfig> | undefined) {
+    if (!mutations) {
+        return;
+    }
+    for (const {
+        store, //mutation 对应的store文件地址
+        data = [], //需要使用的mutations
+    } of mutations) {
+        //生成的文件名称
+        const fileName: string = getFilePathLastPathBySlash(store);
+
+        //文件存储的路径
         const storePath: string = path.resolve(process.cwd(), 'src/store/' + store.replace(new RegExp(`${fileName}$`), ''));
-        let preStore;
+
+        let preStoreFileInfo: StoreFileInfo = {};
+
         try {
             //import(path.join('file://',path.resolve(storePath, fileName+'.js')))
             //import(path.resolve(storePath, fileName));
-            preStore = await import(path.join('file://', path.resolve(storePath, fileName + '.js')));
+            preStoreFileInfo = await import(path.join('file://', path.resolve(storePath, fileName + '.js')));
         } catch (e) {
-            console.log('读取store文件失败读取缓存');
+            console.log(`读取store文件${storePath}失败,尝试读取缓存`);
             try {
-                preStore = await import(path.join('file://', path.resolve(path.join(process.cwd(), 'fastCodeCache/store'), fileName.replace(/\\/g, '-') + '.js')));
+                preStoreFileInfo = await import(path.join('file://', path.resolve(path.join(process.cwd(), 'fastCodeCache/store'), fileName.replace(/\\/g, '-') + '.js')));
             } catch (e) {
-                console.log('不存在缓存文件');
+                console.log('不存在缓存文件或读取缓存文件失败');
             }
         }
+
+        //生成的state代码
         let stateString: any = '';
+
+        //mutations
         let mutationString: any = '';
+
+        //先根据用户定义的data 去生成相关的 state 和 mutations
         Object.entries(data).forEach(([key, val]) => {
-            let value: any;
-            switch (toRawType(val)) {
-                case 'Function':
-                    value = val;
-                    break;
-                case 'Map':
-                    value = 'new Map()';
-                    break;
-                case 'Set':
-                    value = 'new Set()';
-                    break;
-                default:
-                    value = JSON.stringify(val);
-                    break;
-            }
+            //遍历用户定义的data
+            const value: any = transformAllTypesToString(val);
+
             stateString += `${key}:${value},`;
+
             mutationString += `update${key.replace(/^./, key[0].toUpperCase())} (state,${key}){state.${key} = ${key}},`;
         });
 
         let preStateString: any = '';
+
         let preMutationString: any = '';
-        if (preStore) {
-            Object.entries(preStore.default.state).forEach(([key, val]) => {
+
+        const storeOptions: StoreOptions = preStoreFileInfo?.default || {};
+
+        const { namespaced: preNamespaced = true, getters: preGetters = null, actions: preActions = null } = storeOptions;
+        if (preStoreFileInfo?.default?.state) {
+            //去遍历原有文件的state信息 将不存在用户定义在data中的代码进行拼接
+            Object.entries(preStoreFileInfo.default.state).forEach(([key, val]) => {
                 if (!(key in data)) {
-                    let value: any;
-                    switch (toRawType(val)) {
-                        case 'Function':
-                            value = val;
-                            break;
-                        case 'Map':
-                            value = 'new Map()';
-                            break;
-                        case 'Set':
-                            value = 'new Set()';
-                            break;
-                        default:
-                            value = JSON.stringify(val);
-                            break;
-                    }
+                    const value: any = transformAllTypesToString(val);
                     preStateString += `${key}:${value},`;
                 }
             });
 
-            Object.entries(preStore.default.mutations).forEach(([key, val]) => {
-                const filed = key.replace(/^update/, '');
-                const originFiled = filed.replace(/^./, filed[0].toLowerCase());
-                if (!(originFiled in data)) {
-                    preMutationString += `${val},`;
-                }
-            });
+            if (preStoreFileInfo?.default?.mutations) {
+                //去遍历原有文件的mutations信息 将不存在用户定义在data中的代码进行拼接
+                Object.entries(preStoreFileInfo.default.mutations).forEach(([key, val]) => {
+                    const filed = key.replace(/^update/, '');
+                    const originFiled = filed.replace(/^./, filed[0].toLowerCase());
+                    if (!(originFiled in data)) {
+                        preMutationString += `${val},`;
+                    }
+                });
+            }
         }
 
+        //向原有的文件输出文件
         const storeString = `
         export default {
-            namespaced: true,
+            ${preNamespaced ? 'namespaced:' + preNamespaced : ''},
             state: {${stateString}${preStateString}},
-            getters: {
-            },
+            ${preGetters ? 'getters:' + preGetters + ',' : ''}
             mutations: {${mutationString}${preMutationString}},
+            ${preActions ? 'actions:' + preActions + ',' : ''}
         };
         `;
         fileEmitter(storePath, fileName + '.js', js_beautify(storeString));
@@ -462,10 +601,19 @@ function processStates (states: Array<any>): string {
         .join(',');
 }
 
+//处理组件
 function processComponents (components: any) {
     return components ? components.join(',') : '';
 }
 
+//处理mixins
 function processMixins (mixins: any) {
     return mixins ? mixins.join(',') : '';
+}
+
+//获取方法内部内容
+function getFunctionContent (func: any): string {
+    const reg = new RegExp(`${func?.name}\\s{0,}\\(\\s{0,}\\)\\s{0,}\\{(.*)\\}`, 's');
+    const matchResult: any = func?.toString().match(reg) || [];
+    return matchResult[1] || '';
 }

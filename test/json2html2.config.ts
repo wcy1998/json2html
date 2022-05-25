@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-05-15 16:24:50
+ * @LastEditTime: 2022-05-25 17:40:07
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\test\json2html2.config.ts
@@ -23,18 +23,24 @@ export const fastCodeConfig :any = {
             jsConfig: {
                 name: 'workSheetsModal',
                 props: {
-                    collectionId: 'gfdgfd'
+                    test1: 'gfdgfd',
+                    test2:{
+                        type:[String, Number,Function,Object],
+                        default:()=>9
+                    }
                 },
                 mixins:['lqTable'],
                 components:['lqTable'],
                 data: {
-                    paramObj: {
-                        workSheetName: '',
-                        authColumns: [],//选择的受控字段列表
-                        collectionId:'',
-                        fdfd:true
-                    },
-                    controlledFiledList: [],
+                     data1:'fdfds',
+                     data2:321321,
+                     data3:true,
+                     data4:['fdsf',4324,{},[]],
+                     data5:{fdsf:[],fdf:{},fdfd:'',fwe:323},
+                     data6:new Map(),
+                     data7:new Set(),
+                     data8:()=>6,
+                     data9:function(){},
                 },
                 mutations:[  //用于快速生成 mutations 方法
                     {
@@ -60,9 +66,22 @@ export const fastCodeConfig :any = {
                 ndata:{
                     fdfsf:false
                 },
+                beforeCreate(){
+                      let a =890
+                      console.log(a)
+                },
                 watch:{
                     collectionId(){
                        console.log(1111111)
+                    },
+                    data1:{
+                        handler(){
+                        console.log(333333333)
+                        let c = 'fdfdf'
+                        let v = c+3434
+                        console.log(v)},
+                        deep:true,
+                        immediate:false
                     }
                 },
                 computed:{
@@ -89,7 +108,32 @@ export const fastCodeConfig :any = {
                         params: {
                             collectionId: 'this.collectionId'
                         },
+                        pageChange:{
+                           get:true
+                        },
+                        watch:'data1',
+                        loading:true,
                         list: 'controlledFiledList'
+                    },
+                    {
+                        axios: 'columnDimList2',
+                        params: {
+                            collectionId: 'this.collectionId3'
+                        },
+                        pageChange:{
+                            get:true
+                         },
+                         watch:'data1',
+                        list: 'controlledFiledList2'
+                    },
+                    {
+                        axios: 'columnDimList3',
+                        params: {
+                            collectionId: 'this.collectionId3'
+                        },
+                        loading:true,
+                         watch:'data5.fdf',
+                        list: 'controlledFiledList3'
                     },
                 ]
             }

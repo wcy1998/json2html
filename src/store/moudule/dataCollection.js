@@ -7,7 +7,7 @@ export default {
         store4: [],
         store5: {},
     },
-    getters: {},
+
     mutations: {
         updateControlledFiledList2 (state, controlledFiledList2) {
             state.controlledFiledList2 = controlledFiledList2;

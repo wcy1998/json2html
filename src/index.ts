@@ -1,7 +1,7 @@
 import { html_beautify, css_beautify, js_beautify } from 'js-beautify';
 import VueFactory from './factory/vueFactory';
 import { beautifyCompliedResult, JsConfig } from './types/vue';
-import { PagesConfig, HtmlConfig, FastCodeConfig } from './types/vue';
+import { parsedPagesConfig, HtmlConfig, FastCodeConfig } from './types/vue';
 import { formSnippetsByTemplates } from './snippets';
 import { cloneDeep } from 'lodash';
 import { generateDefaultConfig } from './defaultConfig';
@@ -127,7 +127,7 @@ async function json2htmlCss (
 
 //输出所有文件
 function exportFiles (
-    pageConfig: Array<PagesConfig> | undefined //解析后的页面相关的配置
+    pageConfig: Array<parsedPagesConfig> | undefined //解析后的页面相关的配置
 ): void {
     if (!pageConfig) {
         throw new Error('没有配置页面文件');
@@ -140,7 +140,7 @@ function exportFiles (
             jsConfig = {}, //当前页面的js配置
             children, //当前页面的子页面
             usedCssMixin = [], //当前页面使用的css模板
-        }: PagesConfig) => {
+        }: parsedPagesConfig) => {
             //输出单个文件
             exportToFile(filePath, htmlConfig, jsConfig, usedCssMixin);
 
@@ -205,6 +205,7 @@ export function parseFile2FastCodeConfig (pageName: string, pagePath: string) {
     configParser = factory.createConfigParser('', '', pagePath);
     fs.writeFileSync(path.join(basePath, `${pageName}fastCodeConfig.ts`), js_beautify('export const fastCodeConfig =' + JSON.stringify(configParser.parsedFastCodeConfig)), 'utf8');
 }
+
 //生成接口文件
 export function generateAxiosFiles (axiosConfigs: Array<axiosConfig>) {
     emitAxiosFiles(axiosConfigs);
