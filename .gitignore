@@ -1,2 +1,6 @@
 node_modules/
 dist/
+test/
+json2html.css.template.ts
+json2html.html.template.ts
+json2html.http.template.ts

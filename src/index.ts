@@ -5,7 +5,6 @@ import { parsedPagesConfig, HtmlConfig, FastCodeConfig } from './types/vue';
 import { formSnippetsByTemplates } from './snippets';
 import { cloneDeep } from 'lodash';
 import { generateDefaultConfig } from './defaultConfig';
-import VueParser from './parser/config2FileParser/config2FileVueParser';
 import Factory from './factory/factory';
 import Complier from './complier/complier';
 import Config2FileParser from './parser/config2FileParser/config2FileParser';
@@ -16,10 +15,10 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { fileEmitter } from './transform-help/file-help';
+import { mkdir } from './transform-help/file-help';
 
 let factory: Factory, //工厂
-    complier: Complier, //编译器
-    configParser: Config2FileParser; //解析器
+    complier: Complier; //编译器
 
 //获取执行当前代码的执行路径
 const basePath: string = process.cwd();
@@ -132,7 +131,6 @@ function exportFiles (
     if (!pageConfig) {
         throw new Error('没有配置页面文件');
     }
-
     pageConfig.forEach(
         ({
             path: filePath, //文件路径
@@ -152,19 +150,6 @@ function exportFiles (
     );
 }
 
-// 递归创建目录 异步方法
-function mkdir (dirname: string, callback: () => void) {
-    fs.exists(dirname, function (exists: any) {
-        if (exists) {
-            callback();
-        } else {
-            mkdir(path.dirname(dirname), function () {
-                fs.mkdir(dirname, callback);
-            });
-        }
-    });
-}
-
 //生成文件
 export function generateFile (
     originFastCodeConFig: FastCodeConfig, //用户输入的FastCodeConfig 配置
@@ -181,28 +166,24 @@ export function generateFile (
     factory = fastCodeConfig.frame === 'vue' ? new VueFactory() : new VueFactory();
 
     //创建一个解析器 并解析配置
-    let parser: VueParser | null = factory.createParser(fastCodeConfig, htmlTemplateConfig);
+    const parser: Config2FileParser = factory.createParser(fastCodeConfig, htmlTemplateConfig);
 
     //解析后的配置
-    let parsedJson2htmlConfig: FastCodeConfig | undefined;
-
-    if (parser instanceof VueParser) {
-        parsedJson2htmlConfig = cloneDeep(parser.parsedFastCodeConfig);
-    }
+    const parsedJson2htmlConfig: FastCodeConfig | undefined = cloneDeep(parser.parsedFastCodeConfig);
 
     //创建一个编译器 用于生成编译后的要输出的内容
     complier = factory.createComplier(cssTemplateConfig);
 
-    //输出文件
+    //根据解析后的配置 进行文件的输出
     exportFiles(parsedJson2htmlConfig?.pagesConfig);
-
-    parser = null;
 }
 
 //解析智能生成的代码变成fastCodeConfig
-export function parseFile2FastCodeConfig (pageName: string, pagePath: string) {
+export function parseFile2FastCodeConfig (pageName: string, pagePath: string, html: string, css: string) {
     factory = new VueFactory();
-    configParser = factory.createConfigParser('', '', pagePath);
+
+    const configParser = factory.createConfigParser(html, css, pagePath);
+
     fs.writeFileSync(path.join(basePath, `${pageName}fastCodeConfig.ts`), js_beautify('export const fastCodeConfig =' + JSON.stringify(configParser.parsedFastCodeConfig)), 'utf8');
 }
 

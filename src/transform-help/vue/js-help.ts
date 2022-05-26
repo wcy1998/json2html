@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-25 13:20:55
- * @LastEditTime: 2022-05-25 17:57:50
+ * @LastEditTime: 2022-05-26 10:37:53
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\js-help.ts
@@ -42,8 +42,8 @@ export async function json2Js (
         components, //组件的相关配置
         mixins, //mixins相关的配置
     } = jsConfig;
-    let fileInfo: VueFileInfo = {}; //先去读取一下当前文件的上一次输出的内容 这里获取上下文件内容的方式目前是通过import 所以可能会存在一些引入错误 后续会改成文本读取
 
+    let fileInfo: VueFileInfo = {}; //先去读取一下当前文件的上一次输出的内容 这里获取上下文件内容的方式目前是通过import 所以可能会存在一些引入错误 后续会改成文本读取
     try {
         // import(path.join('file://', path.resolve(filepath, 'index.js')));
         // import(path.resolve(filepath, 'index'))
@@ -59,6 +59,7 @@ export async function json2Js (
 
     const VueOptions: VueOptions = fileInfo?.default || {};
 
+    //目前只支持computed  watch  methods的合并操作
     const { computed: preComputed, watch: preWatches, methods: preMethods } = VueOptions || {};
 
     //先解析用户的mutations相关配置在相应的文件中生成需要的state 和 mutations
@@ -152,6 +153,13 @@ export function transformArrayToString (arr: Array<any>): string {
             }
         })
         .join(',')}]`;
+}
+
+//获取方法内部内容
+export function getFunctionContent (func: any): string {
+    const reg = new RegExp(`${func?.name}\\s{0,}\\(\\s{0,}\\)\\s{0,}\\{(.*)\\}`, 's');
+    const matchResult: any = func?.toString().match(reg) || [];
+    return matchResult[1] || '';
 }
 
 //生成一个通过对象生成一个字符串的map
@@ -609,11 +617,4 @@ function processComponents (components: any) {
 //处理mixins
 function processMixins (mixins: any) {
     return mixins ? mixins.join(',') : '';
-}
-
-//获取方法内部内容
-function getFunctionContent (func: any): string {
-    const reg = new RegExp(`${func?.name}\\s{0,}\\(\\s{0,}\\)\\s{0,}\\{(.*)\\}`, 's');
-    const matchResult: any = func?.toString().match(reg) || [];
-    return matchResult[1] || '';
 }

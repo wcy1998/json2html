@@ -5,7 +5,7 @@ import { isPlainTextElement, isNonPhrasingTag, canBeLeftOpenTag, isUnaryTagFnc }
 import { endTag, startTagOpen, startTagClose, dynamicArgAttribute, attribute, cssReg } from '../../regex';
 
 export default class File2FastCodeConfigVueParser implements File2FastCodeConfigParser {
-    parsedConfig: FastCodeConfig;
+    parsedFastCodeConfig: FastCodeConfig;
     currentParent: any; //当前的父标签
     reCache: any;
     root: any; //根标签
@@ -18,19 +18,31 @@ export default class File2FastCodeConfigVueParser implements File2FastCodeConfig
     css: any;
     cssMap: any;
 
-    constructor (html: string, css: string, pagePath: string) {
+    constructor (
+        html: string, //html 相关代码
+        css: string, //css 相关代码
+        pagePath: string
+    ) {
         this.currentParent = null;
+
         this.root = null;
+
         this.stack = []; //解析好的标签
+
         this.stack2 = []; //正在解析的标签
+
         this.lastTag;
+
         this.html = html;
-        this.css = [...css.replace(/\n/g, '').matchAll(cssReg)];
+
+        this.css = [...css.replace(/\n/g, '').matchAll(cssReg)]; //将所有的css进行解析
         this.cssMap = new Map();
+
         this.css.forEach((item: any) => {
             this.cssMap.set(item[1], item[2]);
         });
-        this.parsedConfig = this.transformFile2Config(pagePath);
+
+        this.parsedFastCodeConfig = this.transformFile2Config(pagePath);
     }
 
     transformFile2Config (pagePath: string): FastCodeConfig {
