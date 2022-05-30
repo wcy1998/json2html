@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-24 14:20:53
- * @LastEditTime: 2022-05-25 17:32:46
+ * @LastEditTime: 2022-05-30 14:18:28
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\types\vue\config.ts
@@ -25,6 +25,7 @@ export interface HtmlConfig {
     template?: string //当前html使用的模板
     tag?: string //标签名  也是 组件名
     clazz?: string //类名 如果直接写class会出现一些问题
+    hoverStyle?: string
     children?: Array<HtmlConfig> //子dom
     [propName: string]: any //其他的属性都当做是vue中的写法
 }
@@ -90,6 +91,8 @@ export interface FastCodeConfig {
     mixinCss?: boolean //是否开启抽取css的相关功能
 
     pagesConfig: Array<PagesConfig> //页面的配置
+
+    jsPlugins?: Array<any>
 }
 
 //axios配置 用于生成axios相关文件

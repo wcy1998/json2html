@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-25 13:20:55
- * @LastEditTime: 2022-05-26 10:37:53
+ * @LastEditTime: 2022-05-30 15:37:28
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\js-help.ts
@@ -18,7 +18,8 @@ import { getFilePathLastPathBySlash } from '../../shared/utils';
 //将配置转换成js代码
 export async function json2Js (
     jsConfig: JsConfig, //用户定义的js配置
-    filepath: string //当前页面对应的地址
+    filepath: string, //当前页面对应的地址
+    jsPlugins: Array<any> //js插件
 ): Promise<string> {
     const {
         name, //组件的name
@@ -42,6 +43,15 @@ export async function json2Js (
         components, //组件的相关配置
         mixins, //mixins相关的配置
     } = jsConfig;
+
+    const jsPluginsMap = new Map();
+    jsPlugins.forEach(({ type, configName, func }) => {
+        if (jsPluginsMap.get(type)) {
+            jsPluginsMap.get(type).push({ configName, func });
+        } else {
+            jsPluginsMap.set(type, [{ configName, func }]);
+        }
+    });
 
     let fileInfo: VueFileInfo = {}; //先去读取一下当前文件的上一次输出的内容 这里获取上下文件内容的方式目前是通过import 所以可能会存在一些引入错误 后续会改成文本读取
     try {
@@ -68,22 +78,65 @@ export async function json2Js (
     //如果使用了mutations 和 states 的话 需要引入一下可以防止import的失效
     return `${mutations?.length || states?.length ? `import { ${states?.length ? 'mapState,' : ''}${mutations?.length ? 'mapMutations' : ''}} from "vuex";` : ''} 
     export default {
-       name:"${name}",
-       ${components ? 'components:{' + processComponents(components) + '},//fastCode缓存中没有' : ''}
-       ${mixins ? 'mixins:[' + processMixins(mixins) + '],' : ''}
-       ${props ? 'props:{' + processProps(props) + '},' : ''}
-       data(){return{${processData(data, getList)}}},
-       ${states || computed || preComputed ? 'computed:{' + (states?.length ? processStates(states) + ',' : '') + processComputed(computed, preComputed) + '},' : ''}
-       ${watch || preWatches || getList ? 'watch:{' + processWatch(watch, preWatches, getList) + '},' : ''}
-       ${beforeCreate || ndata ? 'beforeCreate(){' + processNoReactiveData(ndata) + getFunctionContent(beforeCreate) + '},' : ''}
-       ${created ? created + ',' : ''}
-       ${beforeMount ? beforeMount + ',' : ''}
-       ${mounted ? mounted + ',' : ''}
-       ${beforeUpdate ? beforeUpdate + ',' : ''}
-       ${updated ? updated + ',' : ''}
-       ${beforeDestroy ? beforeDestroy + ',' : ''}
-       ${destroyed ? destroyed + ',' : ''}
-       methods:{${mutations?.length ? processMutations(mutations) + ',' : ''}${(getList?.length ? processGetListFunc(getList, preMethods) + ',' : '') + processMethods(methods, preMethods)}}
+       name:"${processPlugins('name', jsConfig, VueOptions, jsPluginsMap)}${name ? name : 'componentName'}",
+       ${
+           components || jsPluginsMap.get('components')
+               ? 'components:{' + processPlugins('components', jsConfig, VueOptions, jsPluginsMap) + processComponents(components) + '},//fastCode缓存中没有'
+               : ''
+       }
+       ${mixins || jsPluginsMap.get('mixins') ? 'mixins:[' + processPlugins('mixins', jsConfig, VueOptions, jsPluginsMap) + processMixins(mixins) + '],' : ''}
+       ${props || jsPluginsMap.get('props') ? 'props:{' + processPlugins('props', jsConfig, VueOptions, jsPluginsMap) + processProps(props) + '},' : ''}
+       data(){return{${processPlugins('data', jsConfig, VueOptions, jsPluginsMap)}${processData(data, getList)}}},
+       ${
+           states || computed || preComputed || jsPluginsMap.get('computed')
+               ? 'computed:{' + processPlugins('computed', jsConfig, VueOptions, jsPluginsMap) + (states?.length ? processStates(states) + ',' : '') + processComputed(computed, preComputed) + '},'
+               : ''
+       }
+       ${watch || preWatches || getList || jsPluginsMap.get('watch') ? 'watch:{' + processPlugins('watch', jsConfig, VueOptions, jsPluginsMap) + processWatch(watch, preWatches, getList) + '},' : ''}
+       ${
+           beforeCreate || ndata || jsPluginsMap.get('beforeCreate')
+               ? `${/^async/.test(beforeCreate?.toString() || '') ? 'async ' : ''}beforeCreate(){` +
+                 processPlugins('beforeCreate', jsConfig, VueOptions, jsPluginsMap) +
+                 processNoReactiveData(ndata) +
+                 getFunctionContent(beforeCreate) +
+                 '},'
+               : ''
+       }
+       ${created ? `${/^async/.test(created?.toString() || '') ? 'async ' : ''}created(){` + processPlugins('created', jsConfig, VueOptions, jsPluginsMap) + getFunctionContent(created) + '},' : ''}
+       ${
+           beforeMount
+               ? `${/^async/.test(beforeMount?.toString() || '') ? 'async ' : ''}beforeMount(){` +
+                 processPlugins('beforeMount', jsConfig, VueOptions, jsPluginsMap) +
+                 getFunctionContent(beforeMount) +
+                 '},'
+               : ''
+       }
+       ${mounted ? `${/^async/.test(mounted?.toString() || '') ? 'async ' : ''}mounted(){` + processPlugins('mounted', jsConfig, VueOptions, jsPluginsMap) + getFunctionContent(mounted) + '},' : ''}
+       ${
+           beforeUpdate
+               ? `${/^async/.test(beforeUpdate?.toString() || '') ? 'async ' : ''}beforeUpdate(){` +
+                 processPlugins('beforeUpdate', jsConfig, VueOptions, jsPluginsMap) +
+                 getFunctionContent(beforeUpdate) +
+                 '},'
+               : ''
+       }
+       ${updated ? `${/^async/.test(updated?.toString() || '') ? 'async ' : ''}updated(){` + processPlugins('updated', jsConfig, VueOptions, jsPluginsMap) + getFunctionContent(updated) + '},' : ''}
+       ${
+           beforeDestroy
+               ? `${/^async/.test(beforeDestroy?.toString() || '') ? 'async ' : ''}beforeDestroy(){` +
+                 processPlugins('beforeDestroy', jsConfig, VueOptions, jsPluginsMap) +
+                 getFunctionContent(beforeDestroy) +
+                 '},'
+               : ''
+       }
+       ${
+           destroyed
+               ? `${/^async/.test(destroyed?.toString() || '') ? 'async ' : ''}destroyed(){` + processPlugins('destroyed', jsConfig, VueOptions, jsPluginsMap) + getFunctionContent(destroyed) + '},'
+               : ''
+       }
+       methods:{${processPlugins('methods', jsConfig, VueOptions, jsPluginsMap)}${mutations?.length ? processMutations(mutations) + ',' : ''}${
+        (getList?.length ? processGetListFunc(getList, preMethods) + ',' : '') + processMethods(methods, preMethods)
+    }}
    }`;
 }
 
@@ -162,6 +215,67 @@ export function getFunctionContent (func: any): string {
     return matchResult[1] || '';
 }
 
+//获取方法内部内容
+export function processPlugins (type: string, jsConfig: any, vueOptions: VueOptions, jsPluginsMap: any): string {
+    const {
+        name, //组件的name
+        props, //用户配置的props
+        data, //用户配置的data
+        ndata, //不具备响应性的数据
+        getList, //用户定义的获取列表的配置
+        methods, //用户定义的方法
+        watch, //用户定义的watch
+        mutations, //用户定义的需要使用的mutations
+        states, //用户需要使用的states
+        computed, //用户需要使用的计算属性
+        beforeCreate,
+        created,
+        beforeMount,
+        mounted,
+        beforeUpdate,
+        updated,
+        beforeDestroy,
+        destroyed,
+        components, //组件的相关配置
+        mixins, //mixins相关的配置
+    } = jsConfig || {};
+    const { computed: preComputed, watch: preWatches, methods: preMethods } = vueOptions || {};
+    const processConfigs = jsPluginsMap.get(type);
+    if (!processConfigs) {
+        return '';
+    }
+    let returnString = '';
+    processConfigs.forEach(({ configName, func }: any) => {
+        returnString += func({
+            [configName]: jsConfig[configName],
+            name,
+            props,
+            data,
+            ndata,
+            getList,
+            methods,
+            watch,
+            mutations,
+            states,
+            computed,
+            beforeCreate,
+            created,
+            beforeMount,
+            mounted,
+            beforeUpdate,
+            updated,
+            beforeDestroy,
+            destroyed,
+            components,
+            mixins,
+            preComputed,
+            preWatches,
+            preMethods,
+        });
+    });
+    return returnString;
+}
+
 //生成一个通过对象生成一个字符串的map
 function generateStringByMap (
     obj: Record<string, any> = {}, //传入的对象
@@ -200,9 +314,9 @@ function processProps (props: Props | undefined | Record<string, any>): string |
 }
 
 //处理 data
-function processData (data: Record<string, any> | undefined, getList: Array<GetListConfig> | undefined): string | void {
+function processData (data: Record<string, any> | undefined, getList: Array<GetListConfig> | undefined): string {
     if (!data && !getList) {
-        return;
+        return '';
     }
     let loadingData = '';
     getList?.forEach(({ loading, list }) => {

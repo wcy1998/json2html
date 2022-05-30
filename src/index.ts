@@ -43,52 +43,58 @@ async function exportToFile (
     filePath: string, //文件的路径
     htmlConfig: HtmlConfig, //当前页面的html配置
     jsConfig: JsConfig, //当前页面的js配置
-    usedCssMixin: Array<string> //当前页面使用的cssMixin
+    usedCssMixin: Array<string>, //当前页面使用的cssMixin
+    jsPlugins: Array<any>
 ): Promise<void> {
     //结合基础路径生成文件的具体路径
     const filepath = path.join(basePath, filePath);
 
     //将配置转换成要输出的html css js 等
-    const { beautifyHtmlCompliedResult, beautifyCssCompliedResult, beautifyJsCompliedResult } = await json2htmlCss(htmlConfig, jsConfig, usedCssMixin, filepath);
+    const { beautifyHtmlCompliedResult, beautifyCssCompliedResult, beautifyJsCompliedResult } = await json2htmlCss(htmlConfig, jsConfig, usedCssMixin, filepath, jsPlugins);
 
     mkdir(filepath, () => {
         if (fs.existsSync(filepath)) {
-            //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
-            fs.writeFileSync(path.join(filepath, 'index.vue'), beautifyHtmlCompliedResult, 'utf8');
-
+            if (htmlConfig) {
+                //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
+                fs.writeFileSync(path.join(filepath, 'index.vue'), beautifyHtmlCompliedResult, 'utf8');
+            }
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
             //fs.writeFileSync(path.join(filepath, 'index.js'), importString + beautifyJsCompliedResult, 'utf8');
-            fs.readFile(path.join(filepath, 'index.js'), 'utf-8', (err: any, data: any) => {
-                let importString = '';
+            if (Object.keys(jsConfig).length > 0) {
+                fs.readFile(path.join(filepath, 'index.js'), 'utf-8', (err: any, data: any) => {
+                    let importString = '';
 
-                //进行一些import的处理
-                if (data) {
-                    const regResult = data.match(importReg);
-                    importString = data.substring(0, regResult.index).trimStart();
-                    const matchResult: any = importString.match(/(['|"|;].*)import.*"vuex"/s) || importString.match(/\n{0,}import.*"vuex";?/s);
-                    if (matchResult && matchResult?.[1]) {
-                        importString = importString.slice(0, matchResult.index + matchResult[1].trimEnd().length) + importString.slice(matchResult.index + matchResult[0].length + 1);
-                    } else if (matchResult) {
-                        importString = importString.slice(matchResult.index + matchResult[0].length);
+                    //进行一些import的处理
+                    if (data) {
+                        const regResult = data.match(importReg);
+                        importString = data.substring(0, regResult.index).trimStart();
+                        const matchResult: any = importString.match(/(['|"|;].*)import.*"vuex"/s) || importString.match(/\n{0,}import.*"vuex";?/s);
+                        if (matchResult && matchResult?.[1]) {
+                            importString = importString.slice(0, matchResult.index + matchResult[1].trimEnd().length) + importString.slice(matchResult.index + matchResult[0].length + 1);
+                        } else if (matchResult) {
+                            importString = importString.slice(matchResult.index + matchResult[0].length);
+                        }
                     }
-                }
 
-                //fs.writeFileSync(path.join(filepath, 'index.js'), importString + beautifyJsCompliedResult, 'utf8');
-                fs.writeFileSync(path.join(filepath, 'index.js'), importString + beautifyJsCompliedResult, 'utf8');
+                    //fs.writeFileSync(path.join(filepath, 'index.js'), importString + beautifyJsCompliedResult, 'utf8');
+                    fs.writeFileSync(path.join(filepath, 'index.js'), importString + beautifyJsCompliedResult, 'utf8');
 
-                const matchResult2: any = importString.matchAll(/(import.*.vue['|"];?\n)/g);
-                let preCutLength = 0;
+                    const matchResult2: any = importString.matchAll(/(import.*.vue['|"];?\n)/g);
+                    let preCutLength = 0;
 
-                for (const matchResult of matchResult2) {
-                    importString = importString.slice(0, matchResult.index - preCutLength) + importString.slice(matchResult.index + matchResult[0].length - preCutLength);
-                    preCutLength += matchResult[0].length;
-                }
-                //输出缓存文件
-                fileEmitter(path.join(process.cwd(), 'fastCodeCache'), filepath.replace(/\\/g, '-') + '.js', importString + beautifyJsCompliedResult.replace(/components.*fastCode缓存中没有/s, ''));
-            });
+                    for (const matchResult of matchResult2) {
+                        importString = importString.slice(0, matchResult.index - preCutLength) + importString.slice(matchResult.index + matchResult[0].length - preCutLength);
+                        preCutLength += matchResult[0].length;
+                    }
+                    //输出缓存文件
+                    fileEmitter(path.join(process.cwd(), 'fastCodeCache'), filepath.replace(/\\/g, '-') + '.js', importString + beautifyJsCompliedResult.replace(/components.*fastCode缓存中没有/s, ''));
+                });
+            }
 
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
-            fs.writeFileSync(path.join(filepath, 'index.scss'), beautifyCssCompliedResult, 'utf8');
+            if (htmlConfig) {
+                fs.writeFileSync(path.join(filepath, 'index.scss'), beautifyCssCompliedResult, 'utf8');
+            }
         } else {
             //不存在的话就创建
             fs.mkdirSync(path.dirname(filepath));
@@ -100,10 +106,11 @@ async function json2htmlCss (
     htmlConfig: HtmlConfig, //当前页面的html配置
     jsConfig: JsConfig, //当前页面的js配置
     usedCssMixin: Array<string>, //当前页面使用的cssMixin
-    filepath: string //当前文件的路径
+    filepath: string, //当前文件的路径
+    jsPlugins: Array<any>
 ): Promise<beautifyCompliedResult> {
     //通过编译器
-    const { htmlCompliedResult, cssCompliedResult, jsCompliedResult } = await complier.compile(htmlConfig, jsConfig, usedCssMixin, filepath);
+    const { htmlCompliedResult, cssCompliedResult, jsCompliedResult } = await complier.compile(htmlConfig, jsConfig, usedCssMixin, filepath, jsPlugins);
 
     //返回美化后的代码
     return {
@@ -126,7 +133,8 @@ async function json2htmlCss (
 
 //输出所有文件
 function exportFiles (
-    pageConfig: Array<parsedPagesConfig> | undefined //解析后的页面相关的配置
+    pageConfig: Array<parsedPagesConfig> | undefined, //解析后的页面相关的配置
+    jsPlugins: Array<any> = []
 ): void {
     if (!pageConfig) {
         throw new Error('没有配置页面文件');
@@ -140,7 +148,7 @@ function exportFiles (
             usedCssMixin = [], //当前页面使用的css模板
         }: parsedPagesConfig) => {
             //输出单个文件
-            exportToFile(filePath, htmlConfig, jsConfig, usedCssMixin);
+            exportToFile(filePath, htmlConfig, jsConfig, usedCssMixin, jsPlugins);
 
             if (children && children.length > 0) {
                 //如果存在子页面继续去输出
@@ -154,10 +162,11 @@ function exportFiles (
 export function generateFile (
     originFastCodeConFig: FastCodeConfig, //用户输入的FastCodeConfig 配置
     htmlTemplateConfig: object, //html相关的模板
-    cssTemplateConfig: object //css相关的模板
+    cssTemplateConfig: object, //css相关的模板
+    snippetsConfig: object
 ): void {
     //生成代码片段的配置
-    formSnippetsByTemplates(cssTemplateConfig, htmlTemplateConfig, originFastCodeConFig.snippetsPath);
+    formSnippetsByTemplates(snippetsConfig, cssTemplateConfig, htmlTemplateConfig, originFastCodeConFig.snippetsPath);
 
     //生成相关的默认配置
     const fastCodeConfig: FastCodeConfig = generateDefaultConfig(originFastCodeConFig);
@@ -175,7 +184,7 @@ export function generateFile (
     complier = factory.createComplier(cssTemplateConfig);
 
     //根据解析后的配置 进行文件的输出
-    exportFiles(parsedJson2htmlConfig?.pagesConfig);
+    exportFiles(parsedJson2htmlConfig?.pagesConfig, parsedJson2htmlConfig?.jsPlugins);
 }
 
 //解析智能生成的代码变成fastCodeConfig

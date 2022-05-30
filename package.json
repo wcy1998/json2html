@@ -1,14 +1,13 @@
 {
     "name": "json2html-wcy",
-    "version": "1.0.74",
+    "version": "1.1.15",
     "description": "transform json to html",
     "main": "./dist/index.cjs.js",
-    "module": "./dist/index.esm.js",
+    "module": "./dist/index.esm.mjs",
     "types": "./dist/index.d.ts",
-    "bin": "cli.js",
     "files": [
         "dist/index.cjs.js",
-        "dist/index.esm.js",
+        "dist/index.esm.mjs",
         "index.d.ts"
     ],
     "scripts": {
@@ -24,7 +23,8 @@
         "commander": "^9.1.0",
         "js-beautify": "^1.10.1",
         "rollup-plugin-terser": "^7.0.2",
-        "vuex": "^4.0.2"
+        "vuex": "^4.0.2",
+        "lodash": "^4.17.21"
     },
     "devDependencies": {
         "@commitlint/cli": "^11.0.0",
@@ -40,7 +40,6 @@
         "eslint": "^8.11.0",
         "husky": "^3.1.0",
         "lint-staged": "^12.3.7",
-        "lodash": "^4.17.21",
         "prettier": "^2.6.0",
         "rollup": "^2.70.1",
         "rollup-plugin-cleanup": "^3.2.1",

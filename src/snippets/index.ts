@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2022-03-29 17:15:59
- * @LastEditTime: 2022-04-25 16:50:29
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-05-29 10:22:33
+ * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\snippets\index.ts
  */
@@ -17,7 +17,7 @@ import fs from 'fs'
 import path from 'path'
 
 //通过配置模板文件生成响应的代码片段提示
-export function formSnippetsByTemplates (cssTemplateConfig: object, htmlTemplateConfig: object, snippetsPath: string) {
+export function formSnippetsByTemplates (snippetsConfig: object, cssTemplateConfig: object, htmlTemplateConfig: object, snippetsPath: string) {
     const snippetsConfigs: any = Object.create(null);
 
     let htmlTemplates = '';
@@ -26,6 +26,8 @@ export function formSnippetsByTemplates (cssTemplateConfig: object, htmlTemplate
 
     //添加css提示
     Object.assign(snippetsConfigs, cssSnippets);
+    //添加自定义的提示
+    Object.assign(snippetsConfigs, snippetsConfig);
 
     //添加css模板提示
     Object.keys(cssTemplateConfig).forEach((key) => {

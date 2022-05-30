@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-05-26 11:13:19
+ * @LastEditTime: 2022-05-30 13:28:48
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\parser\parser\config2FileVueParser.ts
@@ -30,7 +30,7 @@ export default class Config2FileVueParser implements Config2FileParser {
 
         let fatherPath = ''; //记录当前的父路径
 
-        const traverse = (pagesConfig: Array<parsedPagesConfig>, isRoot: boolean): void => {
+        const traverse = (pagesConfig: Array<parsedPagesConfig> = [], isRoot: boolean): void => {
             pagesConfig.forEach((page, index) => {
                 page.path = isRoot ? path.join(this.base || '', page.path) : path.join(fatherPath, page.path);
 
@@ -41,8 +41,9 @@ export default class Config2FileVueParser implements Config2FileParser {
                 const usedCssMixin: Set<any> = new Set();
 
                 //去解析一下html相关的配置 抽出去cssMixin 并将模板的内容进行替换 和 合并 覆盖等操作
-                this.parseHtmlConfig([page.htmlConfig], usedCssMixin);
-
+                if (page.htmlConfig) {
+                    this.parseHtmlConfig([page.htmlConfig], usedCssMixin);
+                }
                 if (page.children) {
                     traverse(page.children, false);
                 }
@@ -56,7 +57,7 @@ export default class Config2FileVueParser implements Config2FileParser {
         this.parsedFastCodeConfig = fastCodeConfig;
     }
 
-    parseHtmlConfig (htmlConfigs: Array<HtmlConfig>, usedCssMixin: Set<any>): void {
+    parseHtmlConfig (htmlConfigs: Array<HtmlConfig> = [], usedCssMixin: Set<any>): void {
         const traverse = (htmlConfigs: Array<HtmlConfig>, usedCssMixin: Set<any>): void => {
             htmlConfigs.forEach((htmlConfig) => {
                 //进行template的设置

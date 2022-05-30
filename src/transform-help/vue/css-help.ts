@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-05-16 16:58:19
+ * @LastEditTime: 2022-05-30 13:16:35
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\css-help.ts
@@ -26,6 +26,7 @@ export const json2css = (
     const {
         clazz: clazz2, //元素类
         style = '', //元素样式
+        hoverStyle = '', //hover的样式
         cssMixin = '', //元素使用的mixins
         tag, //元素的标签
     } = htmlConfig;
@@ -46,7 +47,8 @@ export const json2css = (
     }
 
     //将style中的属性 处理成css格式的字符串
-    let styleString: string = style?.split(';').join(';');
+    let styleString: string = style;
+    const hoverStyleString: string = hoverStyle;
 
     styleString && !/;$/.test(styleString.trim()) && (styleString += ';');
 
@@ -71,9 +73,8 @@ export const json2css = (
                 ${clazz}{
                      ${cssMixin ? cssMixin.map((mixin: string) => `@include ${mixin} ;`).join('') : ''}
                      ${styleString ? styleString : ''}
-                     
+                     ${hoverStyleString ? '&:hover{' + hoverStyleString + '}' : ''}     
                      ${childNodeJson ? childNodeJson.map((child) => json2css(child, cssTemplateConfig, false, usedCssMixin)).join('') : ''}
-
                  }
         `
         : `${childNodeJson ? childNodeJson.map((child) => json2css(child, cssTemplateConfig, false, usedCssMixin)).join('') : ''}`;

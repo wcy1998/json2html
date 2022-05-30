@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-07 15:24:42
- * @LastEditTime: 2022-05-26 11:21:52
+ * @LastEditTime: 2022-05-30 15:12:42
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\test\json2html2.config.ts
@@ -16,7 +16,9 @@ export const fastCodeConfig :any = {
             htmlConfig: {
                 template: "@columnContainer",
                 $style:{width:'fdf'?'':''}, 
+                text:'fnnvcjxhfjksd',
                 $fdf:'fdsfs',
+                clazz:'fdsfsd',
                 ":fdddf":"true",
                 ":fdfsdg":"fdsfdsf"
             },
@@ -69,6 +71,9 @@ export const fastCodeConfig :any = {
                 beforeCreate(){
                       let a =890
                       console.log(a)
+                },
+                async created(){ 
+                    await  console.log(899)
                 },
                 watch:{
                     collectionId(){

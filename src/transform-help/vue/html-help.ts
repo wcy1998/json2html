@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-24 13:40:32
- * @LastEditTime: 2022-05-15 16:04:38
+ * @LastEditTime: 2022-05-30 15:52:12
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\html-help.ts
@@ -20,6 +20,13 @@ export const json2htmlNode = (
 
     //在解析html时最主要的就是 文本 和 标签
     const { tag = '', text = '' } = htmlConfig;
+    if (htmlConfig.vFor && !htmlConfig.$key) {
+        if (/[{|,]id[}|,]/.test(htmlConfig.vFor)) {
+            htmlConfig.$key = 'id';
+        } else {
+            htmlConfig.$key = 'idx';
+        }
+    }
     const startTag = `<${tag}`;
     const endTag = `</${tag}>`;
 
