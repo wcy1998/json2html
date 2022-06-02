@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-25 15:41:17
- * @LastEditTime: 2022-05-11 16:30:58
+ * @LastEditTime: 2022-06-02 17:39:05
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \fastcode-test\index.js
@@ -20,4 +20,3 @@ import { cssTemplateConfig } from './json2html.css.template.js'
 
 //通过fastCodeConfig 生成对应的vue文件
 generateFile(fastCodeConfig, htmlTemplateConfig, cssTemplateConfig);
-

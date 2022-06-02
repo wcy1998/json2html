@@ -8,6 +8,6 @@
  */
 import { json2css } from './css-help';
 import { json2htmlNode } from './html-help';
-import { fromAttributes } from './attrubutes-help';
+import { fromAttributes } from './attributes-help';
 import { json2Js } from './js-help';
 export { json2css, json2htmlNode, fromAttributes, json2Js };

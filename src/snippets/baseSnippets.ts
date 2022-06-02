@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-04-01 11:31:34
- * @LastEditTime: 2022-05-30 13:40:54
+ * @LastEditTime: 2022-06-02 17:43:18
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\snippets\baseSnippets.ts
@@ -9,10 +9,10 @@
 
 //一些基础的代码片段配置
 export const baseSnippets: object = {
-    json2htmlConfig: {
-        prefix: '@json2html',
+    fastCode总体配置: {
+        prefix: '@fastCodeConfig',
         body: `
-    export const json2htmlCfg ={
+    export const fastCodeConfig ={
           frame:'vue', //要转换成的框架
           base:'',  //生成文件的基础路径
           pagesConfig:[  //页面配置
@@ -21,9 +21,9 @@ export const baseSnippets: object = {
       }
     
     `,
-        description: '生成json2html总体配置',
+        description: 'fastCodeConfig总体配置',
     },
-    json2htmlPageConfig: {
+    fastCode单个页面配置: {
         prefix: '@pageConfig',
         body: `
     {
@@ -37,10 +37,10 @@ export const baseSnippets: object = {
     }
   
   `,
-        description: '生成json2html单个页面配置',
+        description: 'fastCodeConfig单个页面配置',
     },
-    json2htmlDomConfig: {
-        prefix: '@DomConfig',
+    单个dom配置: {
+        prefix: '@domConfig',
         body: `
        {
            tag:'$1', 
@@ -48,9 +48,9 @@ export const baseSnippets: object = {
            style:''
        }
   `,
-        description: '生成json2html单个元素配置',
+        description: '单个dom配置',
     },
-    json2htmlTemplateDomConfig: {
+    单个模板dom配置: {
         prefix: '@templateDomConfig',
         body: `
        {
@@ -59,9 +59,9 @@ export const baseSnippets: object = {
            style:''
        } 
   `,
-        description: '生成json2html单个模板元素配置',
+        description: '单个模板dom配置',
     },
-    json2htmlTemplateGetList: {
+    getList的配置: {
         prefix: '@getList',
         body: `[
             {
@@ -78,7 +78,7 @@ export const baseSnippets: object = {
         ],`,
         description: '生成请求getList的配置',
     },
-    json2htmlMutationsConfig: {
+    生成mutations: {
         prefix: '@mutations',
         body: `[  //用于快速生成 mutations 方法
             {
@@ -88,9 +88,9 @@ export const baseSnippets: object = {
                 }
             }
         ],`,
-        description: '用于快速生成 mutations 方法',
+        description: '用于快速生成mutations方法',
     },
-    json2htmlStatesConfig: {
+    生成states: {
         prefix: '@states',
         body: `[  //用于快速生成 mutations 方法
             {
@@ -98,6 +98,6 @@ export const baseSnippets: object = {
                 data:['state'] //所要使用的变量
             }
         ],`,
-        description: '用于快速生成 states 方法',
+        description: '用于快速生成states方法',
     },
 };

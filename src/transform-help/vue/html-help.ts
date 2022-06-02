@@ -7,7 +7,7 @@
  * @FilePath: \json2htmltest\src\transform-help\html-help.ts
  */
 import { HtmlConfig } from '../../types/vue';
-import { fromAttributes } from './attrubutes-help';
+import { fromAttributes } from './attributes-help';
 import { isUnaryTagFnc, isNotRetainedAttribute } from '../../shared/judgeFunc';
 
 //将json配置转换成html标签组成的字符串 就是vue模板

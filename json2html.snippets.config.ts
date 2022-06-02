@@ -2,7 +2,7 @@
  * @Author: Wcy1998 cywu3@leqee.com
  * @Date: 2022-05-29 10:19:11
  * @LastEditors: Wcy1998 cywu3@leqee.com
- * @LastEditTime: 2022-05-30 13:41:10
+ * @LastEditTime: 2022-06-02 17:36:34
  * @FilePath: \json2htmltest\json2html.snippets.config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -86,7 +86,7 @@ export const snippetsConfig = {
                 text: '$2'`,
         description: 'label',
     },
-    json2htmlTemplateHttpFunction: {
+    '生成带有http请求格式的方法': {
         prefix: '@httpFunc',
         body: `async $1funcName(param){
               let result = await $http.axios()

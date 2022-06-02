@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-29 17:15:59
- * @LastEditTime: 2022-05-29 10:22:33
+ * @LastEditTime: 2022-05-31 15:29:31
  * @LastEditors: Wcy1998 cywu3@leqee.com
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\snippets\index.ts
@@ -20,9 +20,9 @@ import path from 'path'
 export function formSnippetsByTemplates (snippetsConfig: object, cssTemplateConfig: object, htmlTemplateConfig: object, snippetsPath: string) {
     const snippetsConfigs: any = Object.create(null);
 
-    let htmlTemplates = '';
+    let htmlTemplates = '请选择一个html模板,';
 
-    let cssTemplates = '';
+    let cssTemplates = '请选择一个css模板,';
 
     //添加css提示
     Object.assign(snippetsConfigs, cssSnippets);
@@ -32,21 +32,11 @@ export function formSnippetsByTemplates (snippetsConfig: object, cssTemplateConf
     //添加css模板提示
     Object.keys(cssTemplateConfig).forEach((key) => {
         cssTemplates += key + ',';
-        snippetsConfigs[`json2html-template-css@${key}`] = {
-            prefix: `@${key}`,
-            body: [key],
-            description: 'description',
-        };
     });
 
     //添加html模板提示
     Object.keys(htmlTemplateConfig).forEach((key) => {
         htmlTemplates += key + ',';
-        snippetsConfigs[`json2html-template-html${key}`] = {
-            prefix: key,
-            body: key,
-            description: 'description',
-        };
     });
 
     //检查代码片段设置文件的路径

@@ -1,3 +1,11 @@
+/*
+ * @Author: Wcy1998 cywu3@leqee.com
+ * @Date: 2022-03-22 17:58:52
+ * @LastEditors: Wcy1998 cywu3@leqee.com
+ * @LastEditTime: 2022-06-02 17:03:15
+ * @FilePath: \json2htmltest\src\index.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { html_beautify, css_beautify, js_beautify } from 'js-beautify';
 import VueFactory from './factory/vueFactory';
 import { beautifyCompliedResult, JsConfig } from './types/vue';
@@ -132,7 +140,7 @@ async function json2htmlCss (
 }
 
 //输出所有文件
-function exportFiles (
+function parseConfigurationGeneratedFiles (
     pageConfig: Array<parsedPagesConfig> | undefined, //解析后的页面相关的配置
     jsPlugins: Array<any> = []
 ): void {
@@ -152,14 +160,14 @@ function exportFiles (
 
             if (children && children.length > 0) {
                 //如果存在子页面继续去输出
-                exportFiles(children);
+                parseConfigurationGeneratedFiles(children, jsPlugins);
             }
         }
     );
 }
 
 //生成文件
-export function generateFile (
+function generateFile (
     originFastCodeConFig: FastCodeConfig, //用户输入的FastCodeConfig 配置
     htmlTemplateConfig: object, //html相关的模板
     cssTemplateConfig: object, //css相关的模板
@@ -184,11 +192,11 @@ export function generateFile (
     complier = factory.createComplier(cssTemplateConfig);
 
     //根据解析后的配置 进行文件的输出
-    exportFiles(parsedJson2htmlConfig?.pagesConfig, parsedJson2htmlConfig?.jsPlugins);
+    parseConfigurationGeneratedFiles(parsedJson2htmlConfig?.pagesConfig, parsedJson2htmlConfig?.jsPlugins);
 }
 
 //解析智能生成的代码变成fastCodeConfig
-export function parseFile2FastCodeConfig (pageName: string, pagePath: string, html: string, css: string) {
+function parseFile2FastCodeConfig (pageName: string, pagePath: string, html: string, css: string) {
     factory = new VueFactory();
 
     const configParser = factory.createConfigParser(html, css, pagePath);
@@ -197,6 +205,12 @@ export function parseFile2FastCodeConfig (pageName: string, pagePath: string, ht
 }
 
 //生成接口文件
-export function generateAxiosFiles (axiosConfigs: Array<axiosConfig>) {
+function generateAxiosFiles (axiosConfigs: Array<axiosConfig>) {
     emitAxiosFiles(axiosConfigs);
 }
+
+export {
+    generateFile, //生成文件
+    parseFile2FastCodeConfig, //解析智能生成的代码变成fastCodeConfig
+    generateAxiosFiles, //生成接口文件
+};
