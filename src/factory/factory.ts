@@ -16,4 +16,7 @@ export default interface Factory {
 
     //eslint-disable-next-line
     createConfigParser(html: string, css: string, pagePath: string): any
+
+    //eslint-disable-next-line
+    createFigmaParser(): any
 }

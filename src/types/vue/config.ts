@@ -1,13 +1,4 @@
-/*
- * @Author: your name
- * @Date: 2022-03-24 14:20:53
- * @LastEditTime: 2022-05-30 14:18:28
- * @LastEditors: Wcy1998 cywu3@leqee.com
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \json2htmltest\src\types\vue\config.ts
- */
-
-//解析前的page【诶之
+//解析前的page
 export interface PagesConfig {
     path: string //单个页面的具体路径
     htmlConfig: HtmlConfig //页面的html配置
@@ -32,7 +23,9 @@ export interface HtmlConfig {
 
 //css相关配置
 //eslint-disable-next-line
-export interface CssConfig {}
+export interface CssConfig {
+    transferClass?: boolean //是否生成一个针对transfer dom 的class文件
+}
 
 //js相关配置
 export interface JsConfig {
@@ -65,11 +58,14 @@ export interface GetListConfig {
     params?: object | string //请求的参数
     list: string //结果存储的对象
     total: boolean //是否有total信息
+    result: string //返回结果中的字段 默认是res.obj
     pageChange?: {
         // 配置了pageChange 就会去字段生成pageChange的方法
-        query?: boolean //get改变时去调用方法
+        get?: boolean //是否去调用getDataList
+        getListFunc?: boolean //调用时具体的方法
         param?: any
     }
+    handleRes?: string //自定义处理结果的代码
     watch?: string //当前列表在什么值改变后重新获取
     loading?: boolean
 }

@@ -1,0 +1,8 @@
+@mixin flex-column {
+    display: flex;
+    flex-direction: column
+}
+
+.fdsfsd {
+    @include flex-column;
+}

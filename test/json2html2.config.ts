@@ -26,6 +26,7 @@ export const fastCodeConfig :any = {
                 name: 'workSheetsModal',
                 props: {
                     test1: 'gfdgfd',
+                    fff:[],
                     test2:{
                         type:[String, Number,Function,Object],
                         default:()=>9

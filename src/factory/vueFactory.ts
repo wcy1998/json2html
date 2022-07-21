@@ -10,6 +10,7 @@ import Factory from './factory';
 import VueComplier from '../complier/vueCompiler';
 import VueParser from '../parser/config2FileParser/config2FileVueParser';
 import VueConfigParser from '../parser/file2FastCodeConfigParser/file2FastCodeConfigVueParser';
+import VueFigmaParser from '../parser/figma2FastCodeConfigParser/figma2FastCodeConfigVueParser';
 import { FastCodeConfig } from '../types/vue';
 export default class VueFactory implements Factory {
     public createParser (json2htmlConfig: FastCodeConfig, templateConfig: object): VueParser {
@@ -22,5 +23,9 @@ export default class VueFactory implements Factory {
 
     public createConfigParser (html: string, css: string, pagePath: string): VueConfigParser {
         return new VueConfigParser(html, css, pagePath);
+    }
+
+    public createFigmaParser (): VueFigmaParser {
+        return new VueFigmaParser();
     }
 }

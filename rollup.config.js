@@ -28,7 +28,7 @@ export default [
       format: 'esm',
       entryFileNames: '[name].esm.mjs',
     },
-    plugins: [resolve(), commonjs(), typescript(),terser(),cleanup()],
+    plugins: [resolve(), commonjs(), typescript()],
   }
 ];
 

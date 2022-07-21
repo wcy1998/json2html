@@ -9,21 +9,30 @@
 
 //一些基础的代码片段配置
 export const baseSnippets: object = {
-    fastCode总体配置: {
+    快速生成fastCode整体配置代码: {
         prefix: '@fastCodeConfig',
         body: `
     export const fastCodeConfig ={
           frame:'vue', //要转换成的框架
           base:'',  //生成文件的基础路径
           pagesConfig:[  //页面配置
-              
+              {
+                path:'$1',  //当前页面 组件 的文件路径
+                htmlConfig:{  //html相关的配置
+         
+                },
+                jsConfig:{  //js相关的配置
+                    
+                }
+              }
           ]
       }
     
     `,
-        description: 'fastCodeConfig总体配置',
+        description: '快速生成fastCode整体配置框架',
     },
-    fastCode单个页面配置: {
+
+    快速生成fastCode单个页面配置代码: {
         prefix: '@pageConfig',
         body: `
     {
@@ -33,13 +42,16 @@ export const baseSnippets: object = {
        },
        jsConfig:{  //js相关的配置
            
+       },
+       cssConfig:{ //css相关配置
+
        }
     }
   
   `,
-        description: 'fastCodeConfig单个页面配置',
+        description: '快速生成fastCode单个页面配置代码',
     },
-    单个dom配置: {
+    快速生成单个dom的配置代码: {
         prefix: '@domConfig',
         body: `
        {
@@ -48,9 +60,9 @@ export const baseSnippets: object = {
            style:''
        }
   `,
-        description: '单个dom配置',
+        description: '快速生成单个dom的配置代码',
     },
-    单个模板dom配置: {
+    快速生成单个模板dom的配置代码: {
         prefix: '@templateDomConfig',
         body: `
        {
@@ -59,38 +71,43 @@ export const baseSnippets: object = {
            style:''
        } 
   `,
-        description: '单个模板dom配置',
+        description: '快速生成单个模板dom的配置代码',
     },
-    getList的配置: {
+    快速生成getList配置代码: {
         prefix: '@getList',
         body: `[
             {
-                axios: '$1',  //当前对应的接口
-                params: {},   //当前请求的参数
-                list: '',    //当前list的方法
-                total:false,  //返回是否带有total
-                loading:false, //是否需要记录请求状态
-                pageChange:{  //是否需要自动生成分页方法
-                    get:false,
-                },
-                watch:''  //watch什么值进行获取列表
+
+                axios: '$1' //当前请求的接口
+                params: {} //请求的参数
+                list: '' //结果存储的对象
+                total: false //是否有total信息
+                result:'' //返回结果中的字段 默认是res.obj
+                pageChange:{  // 配置了pageChange 就会去字段生成pageChange的方法
+                    get: true //是否去调用getDataList
+                    getListFunc:'' //改变分页时调用的具体方法 替代getDatalist 
+                    param: ''
+                }
+                handleRes:"" //自定义处理结果的代码
+                watch: "" //当前列表在什么值改变后重新获取
+                loading: true
             },
         ],`,
-        description: '生成请求getList的配置',
+        description: '快速生成getList配置代码',
     },
-    生成mutations: {
+    快速生成mutations配置代码: {
         prefix: '@mutations',
         body: `[  //用于快速生成 mutations 方法
             {
                 store:'moudule/$1', //mutations所对应的store文件层级
-                data:{            //当前页面所需要使用的mutations
+                data:{        //当前页面所需要使用的mutations
                     state:''    
                 }
             }
         ],`,
-        description: '用于快速生成mutations方法',
+        description: '快速生成mutations配置代码',
     },
-    生成states: {
+    快速生成states配置代码: {
         prefix: '@states',
         body: `[  //用于快速生成 mutations 方法
             {
@@ -98,6 +115,6 @@ export const baseSnippets: object = {
                 data:['state'] //所要使用的变量
             }
         ],`,
-        description: '用于快速生成states方法',
+        description: '快速生成states配置代码',
     },
 };

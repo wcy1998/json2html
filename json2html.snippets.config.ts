@@ -39,26 +39,6 @@ export const snippetsConfig = {
             }`,
         description: 'renderSelect',
     },
-    json2htmTableColumns: {
-        prefix: '@columns',
-        body: ` {
-            title: '$1',
-            width: $2,
-            key: '$3',
-            render:(h,params)=>h()
-        },`,
-        description: 'columns',
-    },
-    json2htmlVirtualList: {
-        prefix: '@list',
-        body: `  tag: 'virtual-table-list',
-        $dataList: '$1',
-        $tableWidth: '$2',
-        $tableHeight: '$3',
-        $columns: '$4',
-        $headerRowStyle: "{$5}",`,
-        description: 'virtualList',
-    },
     json2htmlLqSelect: {
         prefix: '@select',
         body: ` tag: 'lq-select', 
@@ -79,13 +59,6 @@ export const snippetsConfig = {
                  '@on-change': "limitInputLength"`,
         description: 'input',
     },
-    json2htmlLabel: {
-        prefix: '@label',
-        body: ` template: '@requiredLabel',
-                style: 'width: $1px;',
-                text: '$2'`,
-        description: 'label',
-    },
     '生成带有http请求格式的方法': {
         prefix: '@httpFunc',
         body: `async $1funcName(param){
@@ -94,6 +67,11 @@ export const snippetsConfig = {
                   this.$Message.success('')
               }
           },`,
+        description: '生成带有http请求的方法',
+    },
+    'test': {
+        prefix: '@test',
+        body: "${1:another ${2:placeholder}}",
         description: '生成带有http请求的方法',
     },
 }

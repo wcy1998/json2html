@@ -1,16 +1,12 @@
-/*
- * @Author: your name
- * @Date: 2022-04-25 10:13:19
- * @LastEditTime: 2022-05-26 11:20:48
- * @LastEditors: Wcy1998 cywu3@leqee.com
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \json2htmltest\src\transform-help\index.ts
- */
 import fs from 'fs';
 import path from 'path';
 
 //输出文件
-export function fileEmitter (filePath: string, fileName: string, file: any): void {
+export function fileEmitter (
+    filePath: string, //生成的文件路径
+    fileName: string, //生成的文件名称
+    file: any //文件的内容
+): void {
     mkdir(filePath, () => {
         if (fs.existsSync(filePath)) {
             //异步写入文件 如果文件不存在，则创建文件；如果文件存在，则覆盖文件内容；
@@ -21,7 +17,7 @@ export function fileEmitter (filePath: string, fileName: string, file: any): voi
     });
 }
 
-//创建文件 // 递归创建目录 异步方法
+//创建文件 递归创建目录 异步方法
 export function mkdir (dirname: string, callback: () => void) {
     fs.exists(dirname, function (exists: any) {
         if (exists) {

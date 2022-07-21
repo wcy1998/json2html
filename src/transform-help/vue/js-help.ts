@@ -10,7 +10,7 @@
 import { JsConfig, VueOptions, MutationsConfig, VueFileInfo, StoreFileInfo, StoreOptions, Props, GetListConfig } from '../../types/vue';
 import { toRawType } from '../../shared/utils';
 import path from 'path';
-import { fileEmitter } from '../file-help';
+import { fileEmitter } from '../../file-help';
 import process from 'process';
 import { js_beautify } from 'js-beautify';
 import { getFilePathLastPathBySlash } from '../../shared/utils';
@@ -155,6 +155,8 @@ export function transformAllTypesToString (value: any): string {
             return transformObjectToString(value);
         case 'String':
             return `'${value}'`;
+        case 'Number':
+            return value;
         default:
             return JSON.stringify(value);
     }
@@ -174,7 +176,7 @@ export function transformObjectToString (obj: Record<string, any>): string {
                 case 'Function':
                     return `${key}:${val}`;
                 case 'Number':
-                    return `${key}:'${val}'`;
+                    return `${key}:${val}`;
                 case 'Boolean':
                     return `${key}:${val}`;
                 default:
@@ -198,7 +200,7 @@ export function transformArrayToString (arr: Array<any>): string {
                 case 'Function':
                     return val;
                 case 'Number':
-                    return `'${val}'`;
+                    return val;
                 case 'Boolean':
                     return val;
                 default:
@@ -304,7 +306,7 @@ function processProps (props: Props | undefined | Record<string, any>): string |
             if (originVal.type && originVal.default) {
                 return `${key}:{type:[${originVal.type.map((type: any) => type.name)}],default(){return ${transformAllTypesToString(originVal.default)}}}`;
             } else {
-                return `${key}:{type:${toRawType(stringValue)},default(){return ${stringValue}}}`;
+                return `${key}:{type:${toRawType(originVal)},default(){return ${stringValue}}}`;
             }
         },
         false
@@ -495,13 +497,10 @@ function processGetListFunc (
     let axiosSwitchCase = 'switch (type) {';
 
     //总数相关的switch语句
-    let totalSwitchCase = 'switch (type) {';
-
-    let loadingSwitchCase = 'switch (type) {';
+    let totalLoadingResultSwitchCase = 'switch (type) {';
 
     //是否存在total的设置
-    let hasTotal = false;
-    let hasLoading = false;
+    let hasTotalLoadingResult = false;
 
     getList.forEach(
         ({
@@ -511,19 +510,23 @@ function processGetListFunc (
             pageChange, //刷新配置
             loading, //是否记录加载状态
             total, //总数
+            handleRes,
+            result, //返回对应的字段 默认是res.obj
         }) => {
             //如果存在刷新配置就加入
             if (pageChange) {
                 finalPageChangeConfig.push({ ...pageChange, list });
             }
-            if (total) {
-                hasTotal = true;
-                totalSwitchCase += `case '${list}':  this.${list}Total = res.total; break; `;
+            if (total || loading || result || handleRes) {
+                hasTotalLoadingResult = true;
             }
-            if (loading) {
-                hasLoading = true;
-                loadingSwitchCase += `case '${list}':  this.${list}Loading = false; break; `;
-            }
+
+            totalLoadingResultSwitchCase += `case '${list}': 
+            ${total ? `this.${list}Total = res.total;` : ''}
+            ${loading ? `this.${list}Loading = false;` : ''}
+            ${result ? `this[type] = ${result || 'res.obj'};` : ''}
+            ${handleRes ? handleRes : ''}
+            break;`;
             axiosSwitchCase += ` case '${list}':
         ${loading ? 'this.' + list + 'Loading = true' : ''}
         action = $http.${axios};
@@ -552,11 +555,7 @@ function processGetListFunc (
     default:
         break;
     }`;
-    totalSwitchCase += `
-    default:
-        break;
-    }`;
-    loadingSwitchCase += `
+    totalLoadingResultSwitchCase += `
     default:
         break;
     }`;
@@ -567,9 +566,7 @@ function processGetListFunc (
         try {
             let res = await action(params);
             if (res.success) {
-                this[type] = res.obj;
-                ${hasTotal ? totalSwitchCase : ''}
-                ${hasLoading ? loadingSwitchCase : ''}
+                ${hasTotalLoadingResult ? totalLoadingResultSwitchCase : 'this[type] = res.obj;'}
             }
         } catch (e) {
             console.log(e); //eslint-disable-line
@@ -584,8 +581,8 @@ function processGetListFunc (
             finalPageChangeConfig.filter((config) => config.get).length
                 ? finalPageChangeConfig
                       .filter((config) => config.get)
-                      .map(({ list }) => {
-                          return `this.getDataList("${list}")`;
+                      .map(({ list, getListFunc }) => {
+                          return getListFunc ? getListFunc : `this.getDataList("${list}")`;
                       })
                       .join(';')
                 : ''

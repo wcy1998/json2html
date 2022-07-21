@@ -6,12 +6,12 @@
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\parser\parser\config2FileVueParser.ts
  */
+
 //将配置转换成文件过程的解析器
 import Config2FileParser from './config2FileParser';
 import { FastCodeConfig, HtmlConfig, parsedPagesConfig } from '../../types/vue';
-import { cloneDeep } from 'lodash';
-//eslint-disable-next-line
-import path from 'path'
+import { cloneDeep } from 'lodash-es';
+import path from 'path';
 export default class Config2FileVueParser implements Config2FileParser {
     fastCodeConfig: FastCodeConfig; //用户传入的配置
 
@@ -26,7 +26,7 @@ export default class Config2FileVueParser implements Config2FileParser {
 
         this.templateConfig = templateConfig;
 
-        this.base = fastCodeConfig.base;
+        this.base = fastCodeConfig?.base;
 
         let fatherPath = ''; //记录当前的父路径
 
@@ -52,7 +52,7 @@ export default class Config2FileVueParser implements Config2FileParser {
             });
         };
 
-        traverse(fastCodeConfig.pagesConfig, true);
+        fastCodeConfig && traverse(fastCodeConfig.pagesConfig, true);
 
         this.parsedFastCodeConfig = fastCodeConfig;
     }
@@ -97,7 +97,7 @@ export default class Config2FileVueParser implements Config2FileParser {
 
                 if (htmlConfig.cssMixin) {
                     htmlConfig.cssMixin.forEach((mixin: any) => {
-                        usedCssMixin.add(mixin);
+                        usedCssMixin?.add(mixin);
                     });
                 }
 

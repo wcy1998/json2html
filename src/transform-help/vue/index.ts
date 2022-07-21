@@ -9,5 +9,6 @@
 import { json2css } from './css-help';
 import { json2htmlNode } from './html-help';
 import { fromAttributes } from './attributes-help';
-import { json2Js } from './js-help';
-export { json2css, json2htmlNode, fromAttributes, json2Js };
+import { json2Js, transformAllTypesToString } from './js-help';
+import { emitCodeByAxiosConfig } from './http-help';
+export { json2css, json2htmlNode, fromAttributes, json2Js, transformAllTypesToString, emitCodeByAxiosConfig };
