@@ -2,11 +2,6 @@ import Figma2FastCodeConfigParser from './figma2FastCodeConfigParser';
 import { HtmlConfig } from '../../types/vue';
 
 export default class Figma2FastCodeConfigVueParser implements Figma2FastCodeConfigParser {
-    uuid?: string;
-    constructor (id?: string) {
-        this.uuid = id;
-    }
-
     transformFigma2Config (figmaJson: string): any {
         const fastCodeHtmlConfig: HtmlConfig = {};
 
