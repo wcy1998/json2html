@@ -7,7 +7,7 @@
  * @FilePath: \json2htmltest\src\shared\utils.ts
  */
 //一些通用的方法
-import { isSVG } from './judgeFunc';
+import { isSVG } from './judgeFunc.js';
 
 //一个空对象
 export const emptyObject: object = Object.freeze({});

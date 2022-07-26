@@ -1,32 +1,33 @@
 //類型
-import { CssConfig, parsedPagesConfig, HtmlConfig, FastCodeConfig, beautifyCompliedResult, JsConfig } from './types/vue';
+import { CssConfig, parsedPagesConfig, HtmlConfig, FastCodeConfig, beautifyCompliedResult, JsConfig } from './types/vue/index.js';
 
 //工廠相關
-import VueFactory from './factory/vueFactory';
-import Factory from './factory/factory';
-import Complier from './complier/complier';
-import Config2FileParser from './parser/config2FileParser/config2FileParser';
+import VueFactory from './factory/vueFactory.js';
+import Factory from './factory/factory.js';
+import Complier from './complier/complier.js';
+import Config2FileParser from './parser/config2FileParser/config2FileParser.js';
 
 //第三方
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { cloneDeep } from 'lodash-es';
-import { html_beautify, css_beautify, js_beautify } from 'js-beautify';
+import pkg from 'js-beautify';
+const { html_beautify, css_beautify, js_beautify } = pkg;
 
 //代碼片段初始化
-import { InitSnippets } from './snippets';
+import { InitSnippets } from './snippets/index.js';
 
 //生成默認fastCode配置
-import { generateDefaultConfig } from './defaultConfig';
+import { generateDefaultConfig } from './defaultConfig.js';
 
 //正則
-import { importReg } from './regex';
+import { importReg } from './regex/index.js';
 
 //一些轉換的方法
-import { fileEmitter, mkdir } from './file-help';
+import { fileEmitter, mkdir } from './file-help.js';
 
-import { htmlBeautifyConfig, cssBeautifyConfig } from '../src/config/jsBeautyConfig';
+import { htmlBeautifyConfig, cssBeautifyConfig } from '../src/config/jsBeautyConfig.js';
 
 //获取执行当前代码的执行路径
 const basePath: string = process.cwd();
@@ -34,15 +35,23 @@ const basePath: string = process.cwd();
 let factory: Factory, //工厂
     complier: Complier; //编译器
 
+interface generateCodeByFastCodeConfigParam {
+    fastCodeConfig: FastCodeConfig
+    htmlTemplateConfig: Record<string, any>
+    cssTemplateConfig: Record<string, any>
+    snippetsConfig: Record<string, any>
+    updateSnippets?: boolean
+}
 //生成文件
-export function generateCodeByFastCodeConfig (
-    originFastCodeConFig: FastCodeConfig, //用户输入的FastCodeConfig 配置
-    htmlTemplateConfig: Record<string, any>, //html相关的模板
-    cssTemplateConfig: Record<string, any>, //css相关的模板
-    snippetsConfig: Record<string, any> //用户定义的代码片段配置
-): void {
+export function generateCodeByFastCodeConfig ({
+    fastCodeConfig: originFastCodeConFig, //用户输入的FastCodeConfig 配置
+    htmlTemplateConfig, //html相关的模板
+    cssTemplateConfig, //css相关的模板
+    snippetsConfig, //用户定义的代码片段配置
+    updateSnippets = true,
+}: generateCodeByFastCodeConfigParam): void {
     //生成代码片段的配置
-    InitSnippets(snippetsConfig, cssTemplateConfig, htmlTemplateConfig, originFastCodeConFig.snippetsPath);
+    updateSnippets && InitSnippets(snippetsConfig, cssTemplateConfig, htmlTemplateConfig, originFastCodeConFig.snippetsPath);
 
     //生成相关的默认配置
     const FastCodeConfig: FastCodeConfig = generateDefaultConfig(originFastCodeConFig);

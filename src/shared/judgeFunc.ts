@@ -1,5 +1,5 @@
 //判断值的一些方法
-import { unaryTag, vueBuiltInAttribute, notRetainedAttribute, svgTag, isNonPhrasingTags } from './constants';
+import { unaryTag, vueBuiltInAttribute, notRetainedAttribute, svgTag, isNonPhrasingTags } from './constants.js';
 
 //判断是不是一元标签
 export const isUnaryTagFnc = makeMap(unaryTag, true);

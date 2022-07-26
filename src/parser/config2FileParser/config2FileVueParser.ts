@@ -8,8 +8,8 @@
  */
 
 //将配置转换成文件过程的解析器
-import Config2FileParser from './config2FileParser';
-import { FastCodeConfig, HtmlConfig, parsedPagesConfig } from '../../types/vue';
+import Config2FileParser from './config2FileParser.js';
+import { FastCodeConfig, HtmlConfig, parsedPagesConfig } from '../../types/vue/index.js';
 import { cloneDeep } from 'lodash-es';
 import path from 'path';
 export default class Config2FileVueParser implements Config2FileParser {

@@ -6,11 +6,10 @@
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\complier\vueCompiler.ts
  */
-import Complier from './complier';
+import Complier from './complier.js';
 
-import { HtmlConfig, JsConfig } from '../types/vue';
-import { compileResult } from '../types/vue';
-import { json2htmlNode, json2css, json2Js } from '../transform-help/vue/index';
+import { HtmlConfig, JsConfig, compileResult } from '../types/vue/index.js';
+import { json2htmlNode, json2css, json2Js } from '../transform-help/vue/index.js';
 
 export default class VueComplier implements Complier {
     cssTemplateConfig: Record<string, any>;

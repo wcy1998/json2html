@@ -6,10 +6,10 @@
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\vue\attrubutes-help.ts
  */
-import { isVueBuiltInAttribute } from '../../shared/judgeFunc';
-import { vueTemplateAttributesMap } from '../../shared/constants';
-import { toRawType } from '../../shared/utils';
-import { transformArrayToString, transformObjectToString } from './js-help';
+import { isVueBuiltInAttribute } from '../../shared/judgeFunc.js';
+import { vueTemplateAttributesMap } from '../../shared/constants.js';
+import { toRawType } from '../../shared/utils.js';
+import { transformArrayToString, transformObjectToString } from './js-help.js';
 //辅助方法  将用户写的属性转换成vue中指定的属性格式
 export const fromAttributes = (attributeType: string, attributeValue: any): string => {
     const isBuiltInAttribute = isVueBuiltInAttribute(attributeType);

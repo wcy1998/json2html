@@ -7,13 +7,13 @@
  * @FilePath: \json2htmltest\src\transform-help\vue\js-help.ts
  */
 
-import { JsConfig, VueOptions, MutationsConfig, VueFileInfo, StoreFileInfo, StoreOptions, Props, GetListConfig } from '../../types/vue';
-import { toRawType } from '../../shared/utils';
+import { JsConfig, VueOptions, MutationsConfig, VueFileInfo, StoreFileInfo, StoreOptions, Props, GetListConfig } from '../../types/vue/index.js';
 import path from 'path';
-import { fileEmitter } from '../../file-help';
+import { fileEmitter } from '../../file-help.js';
 import process from 'process';
-import { js_beautify } from 'js-beautify';
-import { getFilePathLastPathBySlash } from '../../shared/utils';
+import pkg from 'js-beautify';
+const { js_beautify } = pkg;
+import { getFilePathLastPathBySlash, toRawType } from '../../shared/utils.js';
 
 //将配置转换成js代码
 export async function json2Js (

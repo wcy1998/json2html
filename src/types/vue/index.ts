@@ -7,8 +7,8 @@
  * @FilePath: \json2htmltest\src\types\index.ts
  */
 
-export { PagesConfig, HtmlConfig, CssConfig, JsConfig, FastCodeConfig, axiosConfig, parsedPagesConfig, MutationsConfig, GetListConfig } from './config';
-export { beautifyCompliedResult, compileResult, parsedHtmlConfig } from './result';
+export { PagesConfig, HtmlConfig, CssConfig, JsConfig, FastCodeConfig, axiosConfig, parsedPagesConfig, MutationsConfig, GetListConfig } from './config.js';
+export { beautifyCompliedResult, compileResult, parsedHtmlConfig } from './result.js';
 
 export interface components {
     [propName: string]: VueOptions

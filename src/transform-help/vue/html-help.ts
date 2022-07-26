@@ -6,9 +6,9 @@
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\transform-help\html-help.ts
  */
-import { HtmlConfig } from '../../types/vue';
-import { fromAttributes } from './attributes-help';
-import { isUnaryTagFnc, isNotRetainedAttribute } from '../../shared/judgeFunc';
+import { HtmlConfig } from '../../types/vue/index.js';
+import { fromAttributes } from './attributes-help.js';
+import { isUnaryTagFnc, isNotRetainedAttribute } from '../../shared/judgeFunc.js';
 
 //将json配置转换成html标签组成的字符串 就是vue模板
 export const json2htmlNode = (

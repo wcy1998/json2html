@@ -7,7 +7,7 @@
  * @FilePath: \json2htmltest\src\transform-help\vue\css-help.ts
  */
 
-import { HtmlConfig } from '../../types/vue';
+import { HtmlConfig } from '../../types/vue/index.js';
 
 //将json配置转换成css组成的字符串
 //解析css的时候还是需要 html中的一些样式相关的属性的

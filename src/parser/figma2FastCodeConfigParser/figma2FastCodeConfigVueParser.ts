@@ -1,8 +1,8 @@
-import Figma2FastCodeConfigParser from './figma2FastCodeConfigParser';
-import { HtmlConfig } from '../../types/vue';
+import Figma2FastCodeConfigParser from './figma2FastCodeConfigParser.js';
+import { HtmlConfig } from '../../types/vue/index.js';
 
 export default class Figma2FastCodeConfigVueParser implements Figma2FastCodeConfigParser {
-    transformFigma2Config (figmaJson: string): any {
+    transformFigma2Config (isBindStyle: boolean, figmaJson: string): any {
         const fastCodeHtmlConfig: HtmlConfig = {};
 
         function traverse (figmaConfig: any, fastCodeHtmlConfig: HtmlConfig, marginInfo: any) {
@@ -116,7 +116,20 @@ export default class Figma2FastCodeConfigVueParser implements Figma2FastCodeConf
             }
         }
 
+        function traverse3 (fastCodeHtmlConfig: any) {
+            delete fastCodeHtmlConfig.$style;
+            if (fastCodeHtmlConfig.children) {
+                for (let i = 0; i < fastCodeHtmlConfig.children.length; i++) {
+                    const element = fastCodeHtmlConfig.children[i];
+                    traverse3(element);
+                }
+            }
+        }
+
         traverse2(fastCodeHtmlConfig); //将单个文件节点收敛到父节点上
+        if (!isBindStyle) {
+            traverse3(fastCodeHtmlConfig);
+        }
         return fastCodeHtmlConfig;
     }
 }

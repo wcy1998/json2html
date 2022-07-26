@@ -1,7 +1,7 @@
-import { generateCodeByFastCodeConfig } from './generateCodeByFastCodeConfig';
-import { parseFile2FastCodeConfig } from './parseFile2FastCodeConfig';
-import { generateCodeByAxiosConfig } from './generateCodeByAxiosConfig';
-import { parseFigma2FastCodeConfig } from './parseFigma2FastCodeConfig';
+import { generateCodeByFastCodeConfig } from './generateCodeByFastCodeConfig.js';
+import { parseFile2FastCodeConfig } from './parseFile2FastCodeConfig.js';
+import { generateCodeByAxiosConfig } from './generateCodeByAxiosConfig.js';
+import { parseFigma2FastCodeConfig } from './parseFigma2FastCodeConfig.js';
 
 export {
     generateCodeByFastCodeConfig, //通过配置生成文件

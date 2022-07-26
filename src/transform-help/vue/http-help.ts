@@ -7,9 +7,9 @@
  * @FilePath: \json2htmltest\src\transform-help\vue\http-help.ts
  */
 
-import { axiosConfig } from '../../types/vue';
-import { fileEmitter } from '../../file-help';
-import { axiosReg } from '../../regex';
+import { axiosConfig } from '../../types/vue/index.js';
+import { fileEmitter } from '../../file-help.js';
+import { axiosReg } from '../../regex/index.js';
 //eslint-disable-next-line
 import path from 'path'
 //eslint-disable-next-line

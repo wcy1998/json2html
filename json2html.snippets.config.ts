@@ -69,9 +69,4 @@ export const snippetsConfig = {
           },`,
         description: '生成带有http请求的方法',
     },
-    'test': {
-        prefix: '@test',
-        body: "${1:another ${2:placeholder}}",
-        description: '生成带有http请求的方法',
-    },
 }

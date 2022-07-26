@@ -117,4 +117,15 @@ export const baseSnippets: object = {
         ],`,
         description: '快速生成states配置代码',
     },
+    快速生成axios配置项代码: {
+        prefix: '@axiosConfig',
+        body: `export const axiosConfig = [  //一个axios文件配置项
+            {
+                url: "$1这是一个接口的路径",//接口路径
+                type: "post", //接口方式'post' 'get'
+                mark: "这是一个接口的描述", //注释
+            }
+        ],`,
+        description: '快速生成states配置代码',
+    },
 };

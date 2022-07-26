@@ -1,8 +1,8 @@
 //将智能代码转换成配置的解析器
-import { FastCodeConfig } from '../../types/vue';
-import File2FastCodeConfigParser from './file2FastCodeConfigParser';
-import { isPlainTextElement, isNonPhrasingTag, canBeLeftOpenTag, isUnaryTagFnc } from '../../shared/judgeFunc';
-import { endTag, startTagOpen, startTagClose, dynamicArgAttribute, attribute, cssReg } from '../../regex';
+import { FastCodeConfig } from '../../types/vue/index.js';
+import File2FastCodeConfigParser from './file2FastCodeConfigParser.js';
+import { isPlainTextElement, isNonPhrasingTag, canBeLeftOpenTag, isUnaryTagFnc } from '../../shared/judgeFunc.js';
+import { endTag, startTagOpen, startTagClose, dynamicArgAttribute, attribute, cssReg } from '../../regex/index.js';
 
 export default class File2FastCodeConfigVueParser implements File2FastCodeConfigParser {
     parsedFastCodeConfig: FastCodeConfig;

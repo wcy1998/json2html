@@ -6,12 +6,12 @@
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \json2htmltest\src\factory\vueFactory.ts
  */
-import Factory from './factory';
-import VueComplier from '../complier/vueCompiler';
-import VueParser from '../parser/config2FileParser/config2FileVueParser';
-import VueConfigParser from '../parser/file2FastCodeConfigParser/file2FastCodeConfigVueParser';
-import VueFigmaParser from '../parser/figma2FastCodeConfigParser/figma2FastCodeConfigVueParser';
-import { FastCodeConfig } from '../types/vue';
+import Factory from './factory.js';
+import VueComplier from '../complier/vueCompiler.js';
+import VueParser from '../parser/config2FileParser/config2FileVueParser.js';
+import VueConfigParser from '../parser/file2FastCodeConfigParser/file2FastCodeConfigVueParser.js';
+import VueFigmaParser from '../parser/figma2FastCodeConfigParser/figma2FastCodeConfigVueParser.js';
+import { FastCodeConfig } from '../types/vue/index.js';
 export default class VueFactory implements Factory {
     public createParser (json2htmlConfig: FastCodeConfig, templateConfig: object): VueParser {
         return new VueParser(json2htmlConfig, templateConfig);

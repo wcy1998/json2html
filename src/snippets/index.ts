@@ -8,9 +8,10 @@
  */
 
 //这是用于生成模板和相关代码片段的配置 请注意你原有vscode中的 代码片段配置可能会被覆盖
-import { js_beautify } from 'js-beautify';
-import { cssSnippets as BaseCssStyleSnippets } from './cssSnippets';
-import { baseSnippets as BaseFastCodeConfigSnippets } from './baseSnippets';
+import pkg from 'js-beautify';
+const { js_beautify } = pkg;
+import { cssSnippets as BaseCssStyleSnippets } from './cssSnippets.js';
+import { baseSnippets as BaseFastCodeConfigSnippets } from './baseSnippets.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -67,6 +68,7 @@ export function InitSnippets (
 
     Object.assign(FinalSnippetsConfig, BaseFastCodeConfigSnippets);
 
+    console.log(BaseFastCodeConfigSnippets);
     //输出到指定路径形成代码片段配置
     fs.writeFileSync(path.resolve(path.resolve(snippetsPath, 'typescript.json')), js_beautify(JSON.stringify(FinalSnippetsConfig)), 'utf8');
     fs.writeFileSync(path.resolve(path.resolve(snippetsPath, 'javascript.json')), js_beautify(JSON.stringify(FinalSnippetsConfig)), 'utf8');
